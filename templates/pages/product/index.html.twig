@@ -1,0 +1,162 @@
+{% extends 'layout/index.html.twig' %}
+
+{% block title %}
+<title>Product - All</title>
+{% endblock %}
+
+{% block body %}
+<section class="section breadcrumb-section" style="background-image: url(images/image-10-1920x232.jpg)">
+  <div class="container">
+    <h2 class="breadcrumb-section-title">Products</h2>
+    <!-- Breadcrumb-->
+    <div class="breadcrumb">
+      <div class="breadcrumb-inner">
+        <div class="breadcrumb-item"><a class="breadcrumb-link" href="#">Home</a></div>
+        <div class="breadcrumb-item"><a class="breadcrumb-link" href="{{ path('product') }}">Product</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Product-->
+<section class="section-md bg-transparent">
+  <div class="container">
+    <div class="row row-40 flex-md-row-reverse">
+      <div class="col-md-8">
+        <div class="group-15 d-flex flex-wrap justify-content-between align-items-center">
+          <div>
+            <h3>Product</h3>
+          </div>
+          <div>
+          </div>
+        </div>
+        <div class="row row-30 row-lg-45 row-content">
+          {% for product in products %}
+          <div class="col-sm-6">
+            <!-- Product-->
+            <div class="product product-simple">
+              <div class="product-media"><img class="product-img" src="{{product.getImage}}" alt="" width="252" height="255"/>
+                <div class="product-btns">
+                  <a class="product-btn mdi-cart" href="{{ path('cart_add', {'id': product.getId}) }}"></a>
+                  <a class="product-btn product-btn-tertiary mdi-magnify" data-lightgallery='{"selector":"this"}' href="{{product.getImage}}"></a>
+                </div>
+              </div>
+              <div class="product-title h4"><a href="{{ path('product_detail', {'id': product.getId}) }}">{{ product.getName }}</a></div>
+              <div class="product-price">${{ product.getPrice }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="widget">
+          <h3 class="widget-title title-2">Categories</h3>
+          <div class="widget-body">
+            <div class="widget-list"><a class="widget-list-link link link-dark" href="#"><span>All Products</span><span>9</span></a><a class="widget-list-link link link-dark" href="#"><span>Sportswear</span><span>6</span></a><a class="widget-list-link link link-dark" href="#"><span>Accessories</span><span>2</span></a><a class="widget-list-link link link-dark" href="#"><span>Other</span><span>3</span></a></div>
+          </div>
+        </div>
+        <div class="widget">
+          <h3 class="widget-title title-2">Filter by price</h3>
+          <div class="widget-body widget-body-bordered">
+            <!-- RD Range-->
+            <div class="rd-range" data-min="0" data-max="350" data-min-diff="10" data-start="[100, 234]" data-step="1" data-input=".rd-range-input-value-1" data-input-2=".rd-range-input-value-2"></div>
+            <div class="rd-range-meta">
+              <div class="rd-range-value">
+                <div class="rd-range-form-wrap">
+                  <div class="rd-range-label">Price:</div>
+                </div>
+                <div class="rd-range-form-wrap"><span>$</span>
+                  <input class="rd-range-input rd-range-input-value-1 rd-range-input-2-symbol" type="text" name="value-1" size="1">
+                </div>
+                <div class="rd-range-form-wrap"><span class="mx-1"> - </span></div>
+                <div class="rd-range-form-wrap"><span>$</span>
+                  <input class="rd-range-input rd-range-input-value-2" type="text" name="value-2" size="1">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="widget">
+          <h3 class="widget-title title-2">Sizes</h3>
+          <div class="widget-body widget-body-bordered">
+            <div class="group-20x15 d-flex flex-wrap">
+              <div>
+                <div class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="7720dwaojhb" name="widget-product-size" checked>
+                  <label class="custom-control-label" for="7720dwaojhb">See All
+                  </label>
+                </div>
+              </div>
+              <div>
+                <div class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="7wtd9qlinve" name="widget-product-size">
+                  <label class="custom-control-label" for="7wtd9qlinve">Large
+                  </label>
+                </div>
+              </div>
+              <div>
+                <div class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="yxjp7eh8fj" name="widget-product-size">
+                  <label class="custom-control-label" for="yxjp7eh8fj">Medium
+                  </label>
+                </div>
+              </div>
+              <div>
+                <div class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="civnbyvbywl" name="widget-product-size">
+                  <label class="custom-control-label" for="civnbyvbywl">Small
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="widget">
+          <h3 class="widget-title title-2">Colors</h3>
+          <div class="widget-body widget-body-bordered">
+            <div class="group-15 d-flex flex-wrap">
+              <div class="checkbox-color">
+                <input class="checkbox-color-input" type="checkbox" id="7lwxgg3sdj3">
+                <label class="checkbox-color-label" for="7lwxgg3sdj3"></label>
+              </div>
+              <div class="checkbox-color checkbox-color-secondary">
+                <input class="checkbox-color-input" type="checkbox" id="fjizv46lrhi">
+                <label class="checkbox-color-label" for="fjizv46lrhi"></label>
+              </div>
+              <div class="checkbox-color checkbox-color-tertiaty">
+                <input class="checkbox-color-input" type="checkbox" id="ll6ecmm22lg">
+                <label class="checkbox-color-label" for="ll6ecmm22lg"></label>
+              </div>
+              <div class="checkbox-color checkbox-color-gray-900">
+                <input class="checkbox-color-input" type="checkbox" id="kkh1gfwolc">
+                <label class="checkbox-color-label" for="kkh1gfwolc"></label>
+              </div>
+              <div class="checkbox-color checkbox-color-gray-600">
+                <input class="checkbox-color-input" type="checkbox" id="w8ejrlgb46k">
+                <label class="checkbox-color-label" for="w8ejrlgb46k"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="widget">
+          <h3 class="widget-title title-2">Popular products</h3>
+          <div class="widget-body">
+            {% for product in products %}
+            <!-- Product-->
+            <div class="product product-small-rating">
+              <div class="product-media"><img class="product-img" src="{{product.getImage}}" alt="" width="52" height="52"/>
+              </div>
+              <div class="product-body">
+                <div class="product-title h4"><a href="{{ path('product_detail', {'id': product.getId}) }}"><span>{{ product.getName }}</span></a></div>
+                <div class="product-rating"><span class="product-rating-item mdi-star"></span><span class="product-rating-item mdi-star"></span><span class="product-rating-item mdi-star"></span><span class="product-rating-item mdi-star"></span><span class="product-rating-item mdi-star-half"></span>
+                </div>
+                <div class="product-price">${{ product.getPrice }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

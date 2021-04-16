@@ -1,0 +1,245 @@
+{% extends 'layout/index.html.twig' %}
+
+{% block title %}
+<title>Product - Detail</title>
+{% endblock %}
+
+{% block body %}
+<section class="section breadcrumb-section" style="background-image: url(images/image-10-1920x232.jpg)">
+  <div class="container">
+    <h2 class="breadcrumb-section-title">Single product</h2>
+    <!-- Breadcrumb-->
+    <div class="breadcrumb">
+      <div class="breadcrumb-inner">
+        <div class="breadcrumb-item"><a class="breadcrumb-link" href="index.html">Home</a></div>
+        <div class="breadcrumb-item"><a class="breadcrumb-link" href="#">Shop</a></div>
+        <div class="breadcrumb-item"><span class="breadcrumb-text breadcrumb-active">Single product</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Single-product-->
+<section class="section-md bg-transparent">
+  <div class="container">
+    <div class="row row-30 row-lg-60 justify-content-between">
+      <div class="col-md-6">
+        <div class="owl-carousel owl-product" data-owl="{&quot;nav&quot;:true}" data-items="1">
+          <img src="{{ asset(product.getImage) }}" alt="" width="252" height="255"/>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-5">
+        <div class="product product-overview">
+          <h2 class="product-title">{{ product.getName }}</h2>
+          <div class="product-meta">
+            <div class="product-meta-item">
+              <div class="h4 text-primary">${{ product.getPrice }}</div>
+            </div>
+            <div class="product-meta-item">
+              <div class="product-rating">
+                <div class="product-rating-item mdi-star"></div>
+                <div class="product-rating-item mdi-star"></div>
+                <div class="product-rating-item mdi-star"></div>
+                <div class="product-rating-item mdi-star"></div>
+                <div class="product-rating-item mdi-star-half"></div>
+              </div>
+            </div>
+            <div class="product-meta-item">
+              <div class="product-meta-text">5 Reviews</div>
+            </div>
+          </div>
+          <div class="product-divider divider divider-1"></div>
+          <div class="product-description">{{ product.getDiscription }}</div>
+          <div class="product-action">
+            <div class="product-action-item product-action-item-width">
+              <div class="product-action-title product-action-title">Select color:</div>
+            </div>
+            <div class="product-action-item">
+              <div class="group-15 d-flex flex-wrap">
+                <div class="checkbox-color">
+                  <input class="checkbox-color-input" type="radio" id="7099q8g5upe" name="productOverviewColor">
+                  <label class="checkbox-color-label" for="7099q8g5upe"><span class="checkbox-color-content int-check novi-icon"></span></label>
+                </div>
+                <div class="checkbox-color checkbox-color-secondary">
+                  <input class="checkbox-color-input" type="radio" id="l9l8a95dufl" name="productOverviewColor">
+                  <label class="checkbox-color-label" for="l9l8a95dufl"><span class="checkbox-color-content int-check novi-icon"></span></label>
+                </div>
+                <div class="checkbox-color checkbox-color-tertiary">
+                  <input class="checkbox-color-input" type="radio" id="d6qqd5wkn2" name="productOverviewColor">
+                  <label class="checkbox-color-label" for="d6qqd5wkn2"><span class="checkbox-color-content int-check novi-icon"></span></label>
+                </div>
+                <div class="checkbox-color checkbox-color-gray-900">
+                  <input class="checkbox-color-input" type="radio" id="t2my1qy8hk" name="productOverviewColor">
+                  <label class="checkbox-color-label" for="t2my1qy8hk"><span class="checkbox-color-content int-check novi-icon"></span></label>
+                </div>
+                <div class="checkbox-color checkbox-color-gray-600">
+                  <input class="checkbox-color-input" type="radio" id="z9geirva3pk" name="productOverviewColor">
+                  <label class="checkbox-color-label" for="z9geirva3pk"><span class="checkbox-color-content int-check novi-icon"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="product-action">
+            <div class="product-action-item product-action-item-width">
+              <div class="product-action-title product-action-title">Select size:</div>
+            </div>
+            <div class="product-action-item">
+              <div class="group-5 d-flex flex-wrap">
+                {% for size in sizes %}
+                  {% if size == product.size %}
+                  <div class="checkbox-tag">
+                    <input class="checkbox-tag-input" type="radio" id="{{ size }}" name="productOverviewSize" checked>
+                    <label class="checkbox-tag-label" for="{{ size }}">
+                      {{size}}
+                    </label>
+                  </div>
+                  {% else %}
+                  <div class="checkbox-tag">
+                    <input class="checkbox-tag-input" type="radio" id="{{ size }}" name="productOverviewSize">
+                    <label class="checkbox-tag-label" for="{{ size }}">
+                      {{size}}
+                    </label>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="product-action">
+            <div class="product-action-item">
+              <div class="product-action-title product-action-title">QTY:</div>
+            </div>
+            <div class="product-action-item">
+              <input type="number" value="1" name="qty" data-spinner>
+            </div>
+            <div class="product-action-item">
+              <button class="btn">Add to cart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="tab tab-boxed">
+          <ul class="nav nav-line tab-nav" role="tablist">
+            <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#navLine1-1" role="tab" aria-selected="true">Description</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#navLine1-2" role="tab" aria-selected="false">Delivery</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#navLine1-3" role="tab" aria-selected="false">(3) Reviews</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="navLine1-1" role="tabpanel">
+              <div class="tab-content-item">
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet,</p>
+                <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="navLine1-2" role="tabpanel">
+              <div class="tab-content-item">
+                <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet,</p>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="navLine1-3" role="tabpanel">
+              <div class="tab-content-item">
+                <div class="comment comment-rating">
+                  <div class="comment-header">
+                          <!-- Person-->
+                          <div class="person person-small person-rating"><img class="person-img" src="{{ asset('images/person-02-43x43.jpg') }}" alt="" width="43" height="43"/>
+                            <div class="person-body">
+                              <div class="person-title h5">John Doe</div>
+                              <div class="person-rating">
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star-half"></div>
+                              </div>
+                            </div>
+                          </div>
+                    <div class="comment-date">25 mins ago</div>
+                  </div>
+                  <div class="comment-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</div>
+                </div>
+              </div>
+              <div class="tab-content-item">
+                <div class="comment comment-rating">
+                  <div class="comment-header">
+                          <!-- Person-->
+                          <div class="person person-small person-rating"><img class="person-img" src="{{ asset('images/person-04-43x43.jpg') }}" alt="" width="43" height="43"/>
+                            <div class="person-body">
+                              <div class="person-title h5">Alice Jackson</div>
+                              <div class="person-rating">
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star-half"></div>
+                              </div>
+                            </div>
+                          </div>
+                    <div class="comment-date">25 mins ago</div>
+                  </div>
+                  <div class="comment-text">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu.</div>
+                </div>
+              </div>
+              <div class="tab-content-item">
+                <div class="comment comment-rating">
+                  <div class="comment-header">
+                          <!-- Person-->
+                          <div class="person person-small person-rating"><img class="person-img" src="{{ asset('images/person-03-43x43.jpg') }}" alt="" width="43" height="43"/>
+                            <div class="person-body">
+                              <div class="person-title h5">Will McMillan</div>
+                              <div class="person-rating">
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star"></div>
+                                <div class="person-rating-item mdi-star-half"></div>
+                              </div>
+                            </div>
+                          </div>
+                    <div class="comment-date">25 mins ago</div>
+                  </div>
+                  <div class="comment-text">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae.</div>
+                </div>
+              </div>
+              <div class="tab-content-item">
+                <h4>Write Your Review</h4>
+                <form class="rd-form">
+                  <div class="row row-15 row-gutters-14">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label" for="contact-input">Your name</label>
+                        <div class="form-validation-wrap">
+                          <input class="form-control" id="contact-input" type="text" name="contact-name" placeholder="Enter Your name" data-constraints="@Required">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label" for="contact-email">Your E-mail</label>
+                        <div class="form-validation-wrap">
+                          <input class="form-control" id="contact-email" type="email" name="contact-email" placeholder="Enter Your E-mail" data-constraints="@Email @Required">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-group">
+                        <label class="form-label" for="contact-message">Your Review</label>
+                        <div class="form-validation-wrap">
+                          <textarea class="form-control" id="contact-message" name="textarea" placeholder="Enter Your Review" data-constraints="@Required"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 mt-1 mt-xl-0">
+                      <button class="btn btn-min-width" type="submit">Submit</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

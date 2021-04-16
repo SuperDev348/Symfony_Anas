@@ -1,0 +1,143 @@
+{% extends 'layout/index.html.twig' %}
+
+{% block title %}
+<title>Checkout - All</title>
+{% endblock %}
+
+{% block body %}
+<section class="section breadcrumb-section" style="background-image: url(images/image-10-1920x232.jpg)">
+  <div class="container">
+    <h2 class="breadcrumb-section-title">Checkout</h2>
+    <!-- Breadcrumb-->
+    <div class="breadcrumb">
+      <div class="breadcrumb-inner">
+        <div class="breadcrumb-item"><a class="breadcrumb-link" href="">Home</a></div>
+        <div class="breadcrumb-item"><a class="breadcrumb-link" href="{{ path('checkout') }}">Checkout</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Checkout-->
+<section class="section-md bg-transparent">
+  <div class="container">
+    <form action="{{ path('order_store') }}" method="POST">
+      <div class="row row-40 justify-content-center">
+        <div class="col-md-8">
+          <h3>Shipping details</h3>
+          <div class="box box-form-simple">
+            <div class="rd-form row row-15 row-gutters-14">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label" for="contact-input">First name</label>
+                  <div class="form-validation-wrap">
+                    <input class="form-control" id="contact-input" type="text" name="contact-name" placeholder="Your First name" data-constraints="@Required">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label" for="contact-last-name">Last name</label>
+                  <div class="form-validation-wrap">
+                    <input class="form-control" id="contact-last-name" type="text" name="contact-last-name" placeholder="Your Last name" data-constraints="@Required">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label" for="contact-email">E-mail</label>
+                  <div class="form-validation-wrap">
+                    <input class="form-control" id="contact-email" type="email" name="contact-email" placeholder="Your E-mail" data-constraints="@Email @Required">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label" for="checkout-company">Company</label>
+                  <div class="form-validation-wrap">
+                    <input class="form-control" id="checkout-company" type="text" name="checkout-company" placeholder="Last name" data-constraints="@Required">
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label class="form-label" for="checkout-address">Shipping Address</label>
+                  <div class="form-validation-wrap">
+                    <input class="form-control" id="checkout-address" type="text" name="shipping_address" placeholder="Your Address 1" data-constraints="@Required">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group select-wrap">
+                  <label class="form-label" for="checkout-country-input">Country</label>
+                  <select class="select2" id="checkout-country-input" name="price" data-select2-options='{"placeholder":"Your Country"}'>
+                    <option label="placeholder"></option>
+                    <option>USA</option>
+                    <option>United Kindom</option>
+                    <option>Canada</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label" for="checkout-zip-code">Zip Code</label>
+                  <div class="form-validation-wrap">
+                    <input class="form-control" id="checkout-zip-code" type="text" name="checkout-zip-code" placeholder="Your Zip Code" data-constraints="@Required">
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label class="form-label" for="checkout-comment">Comments</label>
+                  <div class="form-validation-wrap">
+                    <textarea class="form-control" id="checkout-comment" name="checkout-comment" placeholder="Enter Your Comments" data-constraints="@Required"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <h3>Your order</h3>
+          <div class="box box-simple box-simple-2">
+            <div class="box-embed">
+              <ul class="list list-divided">
+                {% for cart in carts %}
+                <li class="list-item">
+                  <div class="list-content">{{ cart.product.getName }}</div>
+                  <div class="list-content">${{ cart.product.getPrice * cart.getQuantity }}</div>
+                </li>
+                {% endfor %}
+                <li class="list-item">
+                  <div class="list-content">Promocode</div>
+                  <div class="list-content text-success">-10.00</div>
+                </li>
+                <li class="list-item">
+                  <div class="list-content">Shipping</div>
+                  <div class="list-content text-warning">${{ shipping_price }}</div>
+                </li>
+                <li class="list-item h5">
+                  <div class="list-content">Total</div>
+                  <div class="list-content text-primary">${{ total_price }}</div>
+                </li>
+              </ul>
+              <div class="custom-contro-container">
+                <div class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="v7vgo3ckp2q" name="checkout" checked>
+                  <label class="custom-control-label" for="v7vgo3ckp2q">Direct Bank Transfer
+                  </label>
+                </div>
+                <div class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="px7baoj7t07" name="checkout">
+                  <label class="custom-control-label" for="px7baoj7t07">PayPal
+                  </label>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-block">Order now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'layout/admin/index.html.twig' %}
+
+{% block title %}
+<title>Order - Admin</title>
+{% endblock %}
+
+{% block subtitle %}
+<a class="navbar-brand" href="javascript:;">Orders</a>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title"> Edit Order</h4>
+        </div>
+        <div class="card-body">
+          <form action="{{ path('admin_order_update', {'id': order.getId}) }}" method="POST">
+            <div class="row">
+              <div class="col-lg-6 offset-lg-3 col-md-12">
+                <div class="form-group">
+                  <label>Product</label>
+                  <select name="product_id" class="custom-select">
+                    {% for product in products %}
+                      {% if product.getId == order.getProductId %}
+                        <option value="{{ product.getId }}" selected>{{ product.getName }}</option>
+                      {% else %}
+                      <option value="{{ product.getId }}">{{ product.getName }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-6 offset-lg-3 col-md-12">
+                <div class="form-group">
+                  <label for="shipping_address">Shipping Address</label>
+                  {% if (old is defined) and ('shipping_address' in old|keys) %}
+                  <input type="text" class="form-control" name="shipping_address" id="shipping_address" value="{{ old.shipping_address }}">
+                  {% else %}
+                  <input type="text" class="form-control" name="shipping_address" id="shipping_address" value="{{ order.getShippingAddress }}">
+                  {% endif %}
+                  {% if (errors is defined) and ('shipping_address' in errors|keys) %}
+                  <span style="color: red;">{{ errors.shipping_address }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-lg-6 offset-lg-3 col-md-12">
+                <div class="form-group">
+                  <label for="quantity">Quantity</label>
+                  {% if (old is defined) and ('quantity' in old|keys) %}
+                  <input type="number" class="form-control" name="quantity" id="quantity" value="{{ old.quantity }}">
+                  {% else %}
+                  <input type="number" class="form-control" name="quantity" id="quantity" value="{{ order.getQuantity }}">
+                  {% endif %}
+                  {% if (errors is defined) and ('quantity' in errors|keys) %}
+                  <span style="color: red;">{{ errors.quantity }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="update ml-auto mr-auto my-3">
+                <a class="btn btn-default btn-round text-white" href="{{ path('admin_order') }}">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-round">Save</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+  // Add the following code if you want the name of the file appear on select
+  $(".custom-file-input").on("change", function() {
+    var fileName = $(this).val().split("\\").pop();
+    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+  });
+  </script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'layout/index.html.twig' %}
+
+{% block title %}
+<title>Checkout - All</title>
+{% endblock %}
+
+{% block body %}
+<section class="section breadcrumb-section" style="background-image: url(images/image-10-1920x232.jpg)">
+  <div class="container">
+    <h2 class="breadcrumb-section-title">Checkout</h2>
+    <!-- Breadcrumb-->
+    <div class="breadcrumb">
+      <div class="breadcrumb-inner">
+        <div class="breadcrumb-item"><a class="breadcrumb-link" href="">Home</a></div>
+        <div class="breadcrumb-item"><a class="breadcrumb-link" href="{{ path('checkout') }}">Checkout</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+<h2 class="text-center mb-5">Success</h2>
+{% endblock %}

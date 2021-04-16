@@ -1,0 +1,67 @@
+{% extends 'layout/admin/index.html.twig' %}
+
+{% block title %}
+<title>Product - Admin</title>
+{% endblock %}
+
+{% block subtitle %}
+<a class="navbar-brand" href="javascript:;">Orders</a>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title"> Orders</h4>
+        </div>
+        <div class="card-body">
+          <div class="mb-3" style="float: right;">
+            <a type="submit" class="btn btn-primary btn-round text-white" href="{{ path('admin_order_create') }}">Create Order</a>
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead class=" text-primary">
+                <th>
+                  Product
+                </th>
+                <th>
+                  Quantity
+                </th>
+                <th>
+                  Price
+                </th>
+                <th>
+                  Shipping Address
+                </th>
+                <th>
+                  Delivery Date
+                </th>
+                <th>
+                  Action
+                </th>
+              </thead>
+              <tbody>
+                {% for order in orders %}
+                <tr>
+                  <td>{{ order.product.getName }}</td>
+                  <td>{{ order.getQuantity }}</td>
+                  <td>$ {{ order.getPrice }}</td>
+                  <td>{{ order.getShippingAddress }}</td>
+                  <td>{{ order.str_date }}</td>
+                  <td>
+                    <a href="{{ path('admin_order_edit', {'id': order.getId}) }}" class="mr-3" title="Edit"><i class="fa fa-edit"></i></a>
+                    <a href="{{ path('admin_order_delete', {'id': order.getId}) }}" class="" title="Delete"><i class="fa fa-trash" style="color: red;"></i></a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
