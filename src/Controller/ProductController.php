@@ -296,7 +296,7 @@ class ProductController extends AbstractController
       $newFilename = $safeFilename.'.'.$image_file->guessExtension();
 
       // Move the file to the directory where brochures are stored
-      try {    
+      try {
         $image_file->move(
           'upload/products/',
           $newFilename

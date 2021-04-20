@@ -152,7 +152,7 @@ class Product
     }
 
     public function getImage(): ?string
-    {    
+    {
         return $this->image;
     }
 
