@@ -180,6 +180,7 @@ class OrderController extends AbstractController
     
     $doct = $this->getDoctrine()->getManager();
     $carts = $this->getDoctrine()->getRepository(Cart::class)->findAll();
+    $max_order_id = $this->max_order_id();
     foreach ($carts as $cart) {
       // save order
       $order = new Order();
@@ -207,6 +208,7 @@ class OrderController extends AbstractController
       $date->add(new DateInterval('P1D'));
       $order->setDate($date);
       $order->setUserId(1);
+      $order->setOrderId($max_order_id + 1);
       // update product quantity
       if ($product->getQuantity() < $cart->getQuantity()) {
         $this->clean_cart();
@@ -220,6 +222,16 @@ class OrderController extends AbstractController
     $doct->flush();
     return $this->render('pages/order/checkout_success.html.twig', [
     ]);
+  }
+
+  private function max_order_id() {
+    $doct = $this->getDoctrine()->getManager();
+    if (count($doct->getRepository(Order::class)->findAll()) === 0)
+      return 0;
+    else {
+      $max_order = $this->getDoctrine()->getRepository(Order::class)->findMaxOrder();
+      return $max_order[0]->getOrderId();
+    }
   }
 
   private function clean_cart() {
@@ -415,9 +427,7 @@ class OrderController extends AbstractController
     $filter = [];
     if ($id != '0' && $id != '') {
       $filter['id'] = $id;
-      $order = $doct->getRepository(Order::class)->find($id);
-      $orders = [];
-      array_push($orders, $order);
+      $orders = $doct->getRepository(Order::class)->findWithOrderId($id);
     }
     else {
       $orders = $doct->getRepository(Order::class)->findAll();

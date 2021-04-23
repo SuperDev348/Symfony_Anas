@@ -65,7 +65,7 @@
               <tbody>
                 {% for order in orders %}
                 <tr>
-                  <td>{{ order.getId }}</td>
+                  <td>{{ order.getOrderId }}</td>
                   <td>{{ order.product.getName }}</td>
                   <td>{{ order.getQuantity }}</td>
                   <td>$ {{ order.getPrice }}</td>

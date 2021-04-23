@@ -21,6 +21,11 @@ class Order
     /**
      * @ORM\Column(type="integer")
      */
+    private $order_id;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
     private $user_id;
 
     /**
@@ -86,6 +91,18 @@ class Order
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getOrderId(): ?int
+    {
+        return $this->order_id;
+    }
+
+    public function setOrderId(int $order_id): self
+    {
+        $this->order_id = $order_id;
+
+        return $this;
     }
 
     public function getUserId(): ?int

@@ -37,6 +37,36 @@ class OrderRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return Order[]
+     */
+    public function findMaxOrder(): array
+    {
+        $query = $this->createQueryBuilder('o');
+        return $query->orderBy('o.order_id', 'DESC')
+            ->setMaxResults( 1 )
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return Order[]
+     */
+    public function findWithOrderId($order_id): array
+    {
+        $entityManager = $this->getEntityManager();
+
+        $query = $entityManager->createQuery(
+            "SELECT o
+            FROM App\Entity\Order o
+            WHERE o.order_id = '" . $order_id . "'
+            ORDER BY o.id ASC"
+        );
+
+        // returns an array of Product objects
+        return $query->getResult();
+    }
+
     // /**
     //  * @return Order[] Returns an array of Order objects
     //  */
