@@ -72,6 +72,19 @@ class OrderController extends AbstractController
   }
 
   /**
+   * @Route("/cart/update/{id}", name="cart_update")
+   */
+  public function cart_update($id, Request $request): Response
+  {
+    $doct = $this->getDoctrine()->getManager();
+    $cart = $doct->getRepository(Cart::class)->find($id);
+    $quantity = $request->request->get('quantity');
+    $cart->setQuantity($quantity);
+    $doct->flush();
+    return $this->redirectToRoute('product');
+  }
+
+  /**
    * @Route("/cart", name="cart")
    */
   public function cart(): Response
@@ -88,14 +101,18 @@ class OrderController extends AbstractController
   /**
    * @Route("/checkout", name="checkout")
    */
-  public function checkout(): Response
+  public function checkout(Request $request): Response
   {
-    $carts = $this->getDoctrine()->getRepository(Cart::class)->findAll();
+    $doct = $this->getDoctrine()->getManager();
+    $carts = $doct->getRepository(Cart::class)->findAll();
     $total_price = 0;
     foreach ($carts as $cart) {
-      $cart->product = $this->getDoctrine()->getRepository(Product::class)->find($cart->getProductId());
+      $quantity = $request->request->get($cart->getId());
+      $cart->setQuantity($quantity);
+      $cart->product = $doct->getRepository(Product::class)->find($cart->getProductId());
       $total_price = $total_price + $cart->product->getPrice() * $cart->getQuantity();
     }
+    $doct->flush();
     $shipping_price = number_format($total_price * 19 /100, 2, '.', ' ');
     $total_price = number_format($total_price + $shipping_price, 2, '.', ' ');;
     return $this->render('pages/order/checkout.html.twig', [
@@ -110,12 +127,30 @@ class OrderController extends AbstractController
    */
   public function order_store(Request $request, ValidatorInterface $validator): Response
   {
+    $first_name = $request->request->get("first_name");
+    $last_name = $request->request->get("last_name");
+    $email = $request->request->get("email");
+    $company = $request->request->get("company");
     $shipping_address = $request->request->get("shipping_address");
+    $country = $request->request->get("country");
+    $zip_code = $request->request->get("zip_code");
     $input = [
+      'first_name' => $first_name,
+      'last_name' => $last_name,
+      'email' => $email,
+      'company' => $company,
       'shipping_address' => $shipping_address,
+      'country' => $country,
+      'zip_code' => $zip_code,
     ];
     $constraints = new Assert\Collection([
+      'first_name' => [new Assert\NotBlank],
+      'last_name' => [new Assert\NotBlank],
+      'email' => [new Assert\NotBlank],
+      'company' => [new Assert\NotBlank],
       'shipping_address' => [new Assert\NotBlank],
+      'country' => [new Assert\NotBlank],
+      'zip_code' => [new Assert\NotBlank],
     ]);
     $violations = $validator->validate($input, $constraints);
     if (count($violations) > 0) {
@@ -126,15 +161,44 @@ class OrderController extends AbstractController
         $violation->getPropertyPath(),
         $violation->getMessage());
       }
-      return $this->redirectToRoute('checkout');
+      $carts = $this->getDoctrine()->getRepository(Cart::class)->findAll();
+      $total_price = 0;
+      foreach ($carts as $cart) {
+        $cart->product = $this->getDoctrine()->getRepository(Product::class)->find($cart->getProductId());
+        $total_price = $total_price + $cart->product->getPrice() * $cart->getQuantity();
+      }
+      $shipping_price = number_format($total_price * 19 /100, 2, '.', ' ');
+      $total_price = number_format($total_price + $shipping_price, 2, '.', ' ');
+      return $this->render('pages/order/checkout.html.twig', [
+        'carts' => $carts,
+        'shipping_price' => $shipping_price,
+        'total_price' => $total_price,
+        'errors' => $errorMessages,
+        'old' => $input
+      ]);
     }
     
     $doct = $this->getDoctrine()->getManager();
     $carts = $this->getDoctrine()->getRepository(Cart::class)->findAll();
     foreach ($carts as $cart) {
+      // save order
       $order = new Order();
+      $first_name = $request->request->get('first_name');
+      $order->setFirstName($first_name);
+      $last_name = $request->request->get('last_name');
+      $order->setLastName($last_name);
+      $email = $request->request->get('email');
+      $order->setEmail($email);
+      $company = $request->request->get('company');
+      $order->setCompany($company);
       $shipping_address = $request->request->get('shipping_address');
       $order->setShippingAddress($shipping_address);
+      $country = $request->request->get('country');
+      $order->setCountry($country);
+      $zip_code = $request->request->get('zip_code');
+      $order->setZipCode($zip_code);
+      $comment = $request->request->get('comment');
+      $order->setComment($comment);
       $product = $this->getDoctrine()->getRepository(Product::class)->find($cart->getProductId());
       $order->setProductId($cart->getProductId());
       $order->setQuantity($cart->getQuantity());
@@ -143,12 +207,28 @@ class OrderController extends AbstractController
       $date->add(new DateInterval('P1D'));
       $order->setDate($date);
       $order->setUserId(1);
+      // update product quantity
+      if ($product->getQuantity() < $cart->getQuantity()) {
+        $this->clean_cart();
+        return $this->render('pages/order/checkout_fail.html.twig', []);
+      }
+      $product->setQuantity($product->getQuantity() - $cart->getQuantity());
       $doct->persist($order);
+      // remove cart
       $doct->remove($cart);
     }
     $doct->flush();
     return $this->render('pages/order/checkout_success.html.twig', [
     ]);
+  }
+
+  private function clean_cart() {
+    $doct = $this->getDoctrine()->getManager();
+    $carts = $doct->getRepository(Cart::class)->findAll();
+    foreach ($carts as $cart) {
+      $doct->remove($cart);
+    }
+    $doct->flush();
   }
 
   /**
@@ -325,32 +405,32 @@ class OrderController extends AbstractController
     ]);
   }
 
-  // // /**
-  // //  * @Route("/admin/blog/search", name="admin_blog_search")
-  // //  */
-  // // public function admin_search(Request $request): Response
-  // // {
-  // //     if (!$this->isAdmin())
-  // //         return $this->redirectToRoute('deconnexion');
-  // //     $type_id = $request->request->get('type_id');
-  // //     $filter = [];
-  // //     if ($type_id != '0')
-  // //         $filter['type_id'] = $type_id;
-      
-  // //     $doct = $this->getDoctrine()->getManager();
-  // //     $blogs = $doct->getRepository(Blog::class)->findWithFilter($filter);
-  // //     foreach($blogs as $blog) {
-  // //         $blogtype = $this->getDoctrine()->getRepository(Blogtype::class)->find($blog->getTypeId());
-  // //         $blog->type = $blogtype->getName();
-  // //         $blog->user = $this->getDoctrine()->getRepository(User::class)->find($blog->getUserId());
-  // //     }
-  // //     $types = $doct->getRepository(Blogtype::class)->findAll();
-  // //     return $this->render('pages/admin/blog/index.html.twig', [
-  // //         'blogs' => $blogs,
-  // //         'filter' => $filter,
-  // //         'types' => $types
-  // //     ]);
-  // // }
+  /**
+   * @Route("/admin/order/search", name="admin_order_search")
+   */
+  public function admin_search(Request $request): Response
+  {
+    $doct = $this->getDoctrine()->getManager();
+    $id = $request->request->get('id');
+    $filter = [];
+    if ($id != '0' && $id != '') {
+      $filter['id'] = $id;
+      $order = $doct->getRepository(Order::class)->find($id);
+      $orders = [];
+      array_push($orders, $order);
+    }
+    else {
+      $orders = $doct->getRepository(Order::class)->findAll();
+    }
+    foreach ($orders as $order) {
+      $order->product = $this->getDoctrine()->getRepository(Product::class)->find($order->getProductId());
+      $order->str_date = $order->getDate()->format('Y-m-d');
+    }
+    return $this->render('pages/admin/order/index.html.twig', [
+      'orders' => $orders,
+      'filter' => $filter
+    ]);
+  }
 
   // private function generateRandomString($length = 10) {
   //   $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';

@@ -11,6 +11,12 @@
   <meta property="og:url" content="http://digipunk.netii.net">
   <link rel="icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
   <link rel="stylesheet" href="{{ asset('components/base/base.css') }}">
+
+  <!-- CSS Files -->
+  <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet" />
+  <link href="{{ asset('assets/css/paper-dashboard.css?v=2.0.1') }}" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project -->
+  <link href="{{ asset('assets/demo/demo.css') }}" rel="stylesheet" />
   {% block stylesheets %}{% endblock %}
 
   <script src="{{ asset('components/base/core.min.js') }}"></script>
@@ -34,6 +40,11 @@
       </svg>
     </div>
   </div>
+  <!--   Core JS Files   -->
+  <script src="{{ asset('assets/js/core/jquery.min.js') }}"></script>
+  <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
+  <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
+  <script src="{{ asset('assets/js/plugins/perfect-scrollbar.jquery.min.js') }}"></script>
   {% block javascripts %}{% endblock %}
 </body>
 </html>

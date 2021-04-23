@@ -17,12 +17,67 @@
           <h4 class="card-title"> Products</h4>
         </div>
         <div class="card-body">
+          <form action="{{ path('admin_product_search') }}" method="POST">
+            <div class="row">
+              <div class="col-lg-4 col-md-12">
+                <div class="form-group">
+                  <label for="name">Type</label>
+                  <select class="custom-select rounded-0" name="type">
+                    <option value="0">All Types</option>
+                    {% for type in types %}
+                      {% if (filter is defined) and ('type' in filter|keys) and (filter.type == type) %}
+                      <option value="{{ type }}" selected>{{ type }}</option>
+                      {% else %}
+                      <option value="{{ type }}">{{ type }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-12">
+                <div class="form-group">
+                  <label for="name">Size</label>
+                  <select class="custom-select rounded-0" name="size">
+                    <option value="0">All Sizes</option>
+                    {% for size in sizes %}
+                      {% if (filter is defined) and ('size' in filter|keys) and (filter.size == size) %}
+                      <option value="{{ size }}" selected>{{ size }}</option>
+                      {% else %}
+                      <option value="{{ size }}">{{ size }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-12">
+                <div class="form-group">
+                  <label for="name">Color</label>
+                  <select class="custom-select rounded-0" name="color">
+                    <option value="0">All Colors</option>
+                    {% for color in colors %}
+                      {% if (filter is defined) and ('color' in filter|keys) and (filter.color == color.name) %}
+                      <option value="{{ color.name }}" selected>{{ color.name }}</option>
+                      {% else %}
+                      <option value="{{ color.name }}">{{ color.name }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="mb-3 col-md-12">
+                <button type="submit" class="btn btn-primary btn-round text-white">Search</button>
+              </div>
+            </div>
+          </form>
           <div class="mb-3" style="float: right;">
-            <a type="submit" class="btn btn-primary btn-round text-white" href="{{ path('admin_product_create') }}">Create Product</a>
+            <a class="btn btn-primary btn-round text-white" href="{{ path('admin_product_create') }}">Create Product</a>
           </div>
           <div class="table-responsive">
             <table class="table">
               <thead class=" text-primary">
+                <th>
+                  Id
+                </th>
                 <th>
                   Name
                 </th>
@@ -54,10 +109,11 @@
               <tbody>
                 {% for product in products %}
                 <tr>
+                  <td>{{ product.getId }}</td>
                   <td>{{ product.getName }}</td>
                   <td><img src="{{ asset(product.getImage) }}" alt="Product Image" style="height: 50px;"></td>
                   <td>{{ product.getSize }}</td>
-                  <td>{{ product.getColor }}</td>
+                  <td style="color: {{ product.ocolor.value }}">{{ product.ocolor.name }}</td>
                   <td>{{ product.getType }}</td>
                   <td>{{ product.getQuantity }}</td>
                   <td>${{ product.getPrice }}</td>
@@ -76,4 +132,14 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+{% if less_products is defined %}
+  {% for item in less_products %}
+  <script>
+    demo.showNotification('top','right', 'Quantity of the product {{item.getName}} is less than 5');
+  </script>
+  {% endfor %}
+{% endif %}
 {% endblock %}

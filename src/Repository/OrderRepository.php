@@ -19,6 +19,24 @@ class OrderRepository extends ServiceEntityRepository
         parent::__construct($registry, Order::class);
     }
 
+    /**
+     * @return Order[]
+     */
+    public function findWithFilter($filter): array
+    {
+        $query = $this->createQueryBuilder('order');
+        foreach ($filter as $key => $value)
+        {
+            $query->andWhere($query->expr()->andX(
+                $query->expr()->like("order.".$key, ":keyword_".$key)               
+            ));
+            $query->setParameter("keyword_".$key, '%'.$value.'%');
+        }
+        return $query->orderBy('order.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     // /**
     //  * @return Order[] Returns an array of Order objects
     //  */

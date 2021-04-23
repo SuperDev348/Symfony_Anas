@@ -17,12 +17,32 @@
           <h4 class="card-title"> Orders</h4>
         </div>
         <div class="card-body">
+          <form action="{{ path('admin_order_search') }}" method="POST">
+            <div class="row">
+              <div class="col-lg-4 col-md-12">
+                <div class="form-group">
+                  <label for="id">Order Id</label>
+                  {% if (filter is defined) and ('id' in filter|keys) %}
+                  <input type="text" id="id" class="form-control" placeholder="Search id" name="id" value="{{ filter.id }}">
+                  {% else %}
+                  <input type="text" id="id" class="form-control" placeholder="Search id" name="id">
+                  {% endif %}
+                </div>
+              </div>
+              <div class="mb-3 col-md-12">
+                <button type="submit" class="btn btn-primary btn-round text-white">Search</button>
+              </div>
+            </div>
+          </form>
           <div class="mb-3" style="float: right;">
             <a type="submit" class="btn btn-primary btn-round text-white" href="{{ path('admin_order_create') }}">Create Order</a>
           </div>
           <div class="table-responsive">
             <table class="table">
               <thead class=" text-primary">
+                <th>
+                  Id
+                </th>
                 <th>
                   Product
                 </th>
@@ -45,6 +65,7 @@
               <tbody>
                 {% for order in orders %}
                 <tr>
+                  <td>{{ order.getId }}</td>
                   <td>{{ order.product.getName }}</td>
                   <td>{{ order.getQuantity }}</td>
                   <td>$ {{ order.getPrice }}</td>

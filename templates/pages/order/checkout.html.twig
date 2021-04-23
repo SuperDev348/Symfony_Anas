@@ -28,68 +28,116 @@
             <div class="rd-form row row-15 row-gutters-14">
               <div class="col-md-6">
                 <div class="form-group">
-                  <label class="form-label" for="contact-input">First name</label>
+                  <label class="form-label" for="first_name">First name</label>
                   <div class="form-validation-wrap">
-                    <input class="form-control" id="contact-input" type="text" name="contact-name" placeholder="Your First name" data-constraints="@Required">
+                    {% if (old is defined) and ('first_name' in old|keys) %}
+                    <input class="form-control" id="first_name" type="text" name="first_name" placeholder="Your First name" data-constraints="@Required"  value="{{ old.first_name }}">
+                    {% else %}
+                    <input class="form-control" id="first_name" type="text" name="first_name" placeholder="Your First name" data-constraints="@Required">
+                    {% endif %}
+                    {% if (errors is defined) and ('first_name' in errors|keys) %}
+                    <span style="color: red;">{{ errors.first_name }}</span>
+                    {% endif %}
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label class="form-label" for="contact-last-name">Last name</label>
+                  <label class="form-label" for="last_name">Last name</label>
                   <div class="form-validation-wrap">
-                    <input class="form-control" id="contact-last-name" type="text" name="contact-last-name" placeholder="Your Last name" data-constraints="@Required">
+                    {% if (old is defined) and ('last_name' in old|keys) %}
+                    <input class="form-control" id="last_name" type="text" name="last_name" placeholder="Your Last name" data-constraints="@Required" value="{{ old.last_name }}">
+                    {% else %}
+                    <input class="form-control" id="last_name" type="text" name="last_name" placeholder="Your Last name" data-constraints="@Required">
+                    {% endif %}
+                    {% if (errors is defined) and ('last_name' in errors|keys) %}
+                    <span style="color: red;">{{ errors.last_name }}</span>
+                    {% endif %}
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label class="form-label" for="contact-email">E-mail</label>
+                  <label class="form-label" for="email">E-mail</label>
                   <div class="form-validation-wrap">
-                    <input class="form-control" id="contact-email" type="email" name="contact-email" placeholder="Your E-mail" data-constraints="@Email @Required">
+                    {% if (old is defined) and ('email' in old|keys) %}
+                    <input class="form-control" id="email" type="email" name="email" placeholder="Your E-mail" data-constraints="@Email @Required" value="{{ old.email }}">
+                    {% else %}
+                    <input class="form-control" id="email" type="email" name="email" placeholder="Your E-mail" data-constraints="@Email @Required">
+                    {% endif %}
+                    {% if (errors is defined) and ('email' in errors|keys) %}
+                    <span style="color: red;">{{ errors.email }}</span>
+                    {% endif %}
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label class="form-label" for="checkout-company">Company</label>
+                  <label class="form-label" for="company">Company</label>
                   <div class="form-validation-wrap">
-                    <input class="form-control" id="checkout-company" type="text" name="checkout-company" placeholder="Last name" data-constraints="@Required">
+                    {% if (old is defined) and ('company' in old|keys) %}
+                    <input class="form-control" id="company" type="text" name="company" placeholder="Last name" data-constraints="@Required" value="{{ old.company }}">
+                    {% else %}
+                    <input class="form-control" id="company" type="text" name="company" placeholder="Last name" data-constraints="@Required">
+                    {% endif %}
+                    {% if (errors is defined) and ('company' in errors|keys) %}
+                    <span style="color: red;">{{ errors.company }}</span>
+                    {% endif %}
                   </div>
                 </div>
               </div>
               <div class="col-12">
                 <div class="form-group">
-                  <label class="form-label" for="checkout-address">Shipping Address</label>
+                  <label class="form-label" for="shipping_address">Shipping Address</label>
                   <div class="form-validation-wrap">
-                    <input class="form-control" id="checkout-address" type="text" name="shipping_address" placeholder="Your Address 1" data-constraints="@Required">
+                    {% if (old is defined) and ('shipping_address' in old|keys) %}
+                    <input class="form-control" id="shipping_address" type="text" name="shipping_address" placeholder="Your Address 1" data-constraints="@Required" value="{{ old.shipping_address }}">
+                    {% else %}
+                    <input class="form-control" id="shipping_address" type="text" name="shipping_address" placeholder="Your Address 1" data-constraints="@Required">
+                    {% endif %}
+                    {% if (errors is defined) and ('shipping_address' in errors|keys) %}
+                    <span style="color: red;">{{ errors.shipping_address }}</span>
+                    {% endif %}
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group select-wrap">
                   <label class="form-label" for="checkout-country-input">Country</label>
-                  <select class="select2" id="checkout-country-input" name="price" data-select2-options='{"placeholder":"Your Country"}'>
-                    <option label="placeholder"></option>
-                    <option>USA</option>
-                    <option>United Kindom</option>
-                    <option>Canada</option>
+                  <select class="select2" id="checkout-country-input" name="country" data-select2-options='{"placeholder":"Your Country"}'>
+                    <option value="USA">USA</option>
+                    <option value="United Kindom">United Kindom</option>
+                    <option value="Canada">Canada</option>
                   </select>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label class="form-label" for="checkout-zip-code">Zip Code</label>
+                  <label class="form-label" for="zip_code">Zip Code</label>
                   <div class="form-validation-wrap">
-                    <input class="form-control" id="checkout-zip-code" type="text" name="checkout-zip-code" placeholder="Your Zip Code" data-constraints="@Required">
+                    {% if (old is defined) and ('zip_code' in old|keys) %}
+                    <input class="form-control" id="zip_code" type="text" name="zip_code" placeholder="Your Zip Code" data-constraints="@Required" value="{{ old.zip_code }}">
+                    {% else %}
+                    <input class="form-control" id="zip_code" type="text" name="zip_code" placeholder="Your Zip Code" data-constraints="@Required">
+                    {% endif %}
+                    {% if (errors is defined) and ('zip_code' in errors|keys) %}
+                    <span style="color: red;">{{ errors.zip_code }}</span>
+                    {% endif %}
                   </div>
                 </div>
               </div>
               <div class="col-12">
                 <div class="form-group">
-                  <label class="form-label" for="checkout-comment">Comments</label>
+                  <label class="form-label" for="comment">Comments</label>
                   <div class="form-validation-wrap">
-                    <textarea class="form-control" id="checkout-comment" name="checkout-comment" placeholder="Enter Your Comments" data-constraints="@Required"></textarea>
+                    {% if (old is defined) and ('comment' in old|keys) %}
+                    <textarea class="form-control" id="comment" name="comment" placeholder="Enter Your Comments" data-constraints="@Required">{{ old.comment }}</textarea>
+                    {% else %}
+                    <textarea class="form-control" id="comment" name="comment" placeholder="Enter Your Comments" data-constraints="@Required"></textarea>
+                    {% endif %}
+                    {% if (errors is defined) and ('comment' in errors|keys) %}
+                    <span style="color: red;">{{ errors.comment }}</span>
+                    {% endif %}
                   </div>
                 </div>
               </div>

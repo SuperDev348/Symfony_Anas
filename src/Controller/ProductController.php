@@ -48,8 +48,21 @@ class ProductController extends AbstractController
   public function index(): Response
   {
     $products = $this->getDoctrine()->getRepository(Product::class)->findAll();
+    $colors= $this->colors();
+    $sizes = $this->sizes();
+    $type_names = $this->types();
+    $types = [];
+    foreach($type_names as $type_name) {
+      $type = [];
+      $type['name'] = $type_name;
+      $type['product_count'] = count($this->getDoctrine()->getRepository(Product::class)->findWithType($type_name));
+      array_push($types, $type);
+    }
     return $this->render('pages/product/index.html.twig', [
       'products' => $products,
+      'colors' => $colors,
+      'types' => $types,
+      'sizes' => $sizes,
     ]);
   }
 
@@ -67,6 +80,68 @@ class ProductController extends AbstractController
   }
 
   /**
+   * @Route("/product/search", name="product_search")
+   */
+  public function search(Request $request): Response
+  {
+    $size = $request->request->get('size');
+    $color = $request->request->get('color');
+    $min_price = $request->request->get('min_price');
+    $max_price = $request->request->get('max_price');
+    $filter = [];
+    if ($size != '0')
+      $filter['size'] = $size;
+    if ($color != '0')
+      $filter['color'] = $color;
+    
+    $doct = $this->getDoctrine()->getManager();
+    $products = $doct->getRepository(Product::class)->findWithFilter($filter, $min_price, $max_price);
+    $colors= $this->colors();
+    $sizes = $this->sizes();
+    $type_names = $this->types();
+    $types = [];
+    foreach($type_names as $type_name) {
+      $type = [];
+      $type['name'] = $type_name;
+      $type['product_count'] = count($this->getDoctrine()->getRepository(Product::class)->findWithType($type_name));
+      array_push($types, $type);
+    }
+    return $this->render('pages/product/index.html.twig', [
+      'products' => $products,
+      'colors' => $colors,
+      'types' => $types,
+      'sizes' => $sizes,
+      'filter' => $filter,
+      'max_price' => $max_price,
+      'min_price' => $min_price,
+    ]);
+  }
+
+  /**
+   * @Route("/product/filter/{type}", name="product_filter_by_type")
+   */
+  public function filter_by_type($type): Response
+  {
+    $products = $this->getDoctrine()->getRepository(Product::class)->findWithType($type);
+    $colors= $this->colors();
+    $sizes = $this->sizes();
+    $type_names = $this->types();
+    $types = [];
+    foreach($type_names as $type_name) {
+      $type = [];
+      $type['name'] = $type_name;
+      $type['product_count'] = count($this->getDoctrine()->getRepository(Product::class)->findWithType($type_name));
+      array_push($types, $type);
+    }
+    return $this->render('pages/product/index.html.twig', [
+      'products' => $products,
+      'colors' => $colors,
+      'types' => $types,
+      'sizes' => $sizes,
+    ]);
+  }
+
+  /**
    * @Route("/admin/product", name="admin_product")
    */
   public function admin_index(): Response
@@ -74,8 +149,19 @@ class ProductController extends AbstractController
     // if (!$this->isAdmin())
     //     return $this->redirectToRoute('deconnexion');
     $products = $this->getDoctrine()->getRepository(Product::class)->findAll();
+    foreach ($products as $product) {
+      $product->ocolor = $this->getColor($product->getColor());
+    }
+    $less_products = $this->getDoctrine()->getRepository(Product::class)->findLess(5);
+    $colors = $this->colors();
+    $types = $this->types();
+    $sizes = $this->sizes();
     return $this->render('pages/admin/product/index.html.twig', [
       'products' => $products,
+      'colors' => $colors,
+      'types' => $types,
+      'sizes' => $sizes,
+      'less_products' => $less_products,
     ]);
   }
 
@@ -87,8 +173,12 @@ class ProductController extends AbstractController
     // if (!$this->isAdmin())
     //     return $this->redirectToRoute('deconnexion');
     $sizes = $this->sizes();
+    $types = $this->types();
+    $colors = $this->colors();
     return $this->render('pages/admin/product/create.html.twig', [
-      'sizes' => $sizes
+      'sizes' => $sizes,
+      'types' => $types,
+      'colors' => $colors,
     ]);
   }
 
@@ -100,29 +190,23 @@ class ProductController extends AbstractController
     // if (!$this->isAdmin())
     //     return $this->redirectToRoute('deconnexion');
     $name = $request->request->get("name");
-    $discription = $request->request->get("discription");
+    $description = $request->request->get("description");
     $quantity = $request->request->get("quantity");
-    $size = $request->request->get("size");
-    $color = $request->request->get("color");
     $type = $request->request->get("type");
     $supplier = $request->request->get("supplier");
     $price = $request->request->get("price");
     $input = [
       'name' => $name,
-      'discription' => $discription,
+      'description' => $description,
       'quantity' => $quantity,
-      'size' => $size,
-      'color' => $color,
       'type' => $type,
       'supplier' => $supplier,
       'price' => $price,
     ];
     $constraints = new Assert\Collection([
       'name' => [new Assert\NotBlank],
-      'discription' => [new Assert\NotBlank],
+      'description' => [new Assert\NotBlank],
       'quantity' => [new Assert\NotBlank],
-      'size' => [new Assert\NotBlank],
-      'color' => [new Assert\NotBlank],
       'type' => [new Assert\NotBlank],
       'supplier' => [new Assert\NotBlank],
       'price' => [new Assert\NotBlank, new Assert\Type(['type' => 'numeric'])],
@@ -137,8 +221,12 @@ class ProductController extends AbstractController
         $violation->getMessage());
       }
       $sizes = $this->sizes();
+      $types = $this->types();
+      $colors = $this->colors();
       return $this->render('pages/admin/product/create.html.twig', [
         'sizes' => $sizes,
+        'types' => $types,
+        'colors' => $colors,
         'errors' => $errorMessages,
         'old' => $input
       ]);
@@ -147,16 +235,22 @@ class ProductController extends AbstractController
     $product = new Product();
     $name = $request->request->get('name');
     $product->setName($name);
-    $discription = $request->request->get('discription');
-    $product->setDiscription($discription);
+    $description = $request->request->get('description');
+    $product->setDescription($description);
     $quantity = $request->request->get('quantity');
     $product->setQuantity($quantity);
-    $size = $request->request->get('size');
-    $product->setSize($size);
-    $color = $request->request->get('color');
-    $product->setColor($color);
     $type = $request->request->get('type');
     $product->setType($type);
+    if ($type === 'equipement' || $type === 'accessoires') {
+      $product->setSize('');
+      $product->setColor('');
+    }
+    else {
+      $size = $request->request->get('size');
+      $product->setSize($size);
+      $color = $request->request->get('color');
+      $product->setColor($color);
+    }
     $supplier = $request->request->get('supplier');
     $product->setSupplier($supplier);
     $price = $request->request->get('price');
@@ -186,8 +280,12 @@ class ProductController extends AbstractController
     else {
       $errorMessages = ['image' => 'this field is require'];
       $sizes = $this->sizes();
+      $types = $this->types();
+      $colors = $this->colors();
       return $this->render('pages/admin/product/create.html.twig', [
         'sizes' => $sizes,
+        'types' => $types,
+        'colors' => $colors,
         'errors' => $errorMessages,
         'old' => $input
       ]);
@@ -209,9 +307,13 @@ class ProductController extends AbstractController
     //     return $this->redirectToRoute('deconnexion');
     $product = $this->getDoctrine()->getRepository(Product::class)->find($id);
     $sizes = $this->sizes();
+    $types = $this->types();
+    $colors = $this->colors();
     return $this->render('pages/admin/product/edit.html.twig', [
       'product' => $product,
       'sizes' => $sizes,
+      'types' => $types,
+      'colors' => $colors,
     ]);
   }
 
@@ -223,29 +325,23 @@ class ProductController extends AbstractController
     // if (!$this->isAdmin())
     //     return $this->redirectToRoute('deconnexion');
     $name = $request->request->get("name");
-    $discription = $request->request->get("discription");
+    $description = $request->request->get("description");
     $quantity = $request->request->get("quantity");
-    $size = $request->request->get("size");
-    $color = $request->request->get("color");
     $type = $request->request->get("type");
     $supplier = $request->request->get("supplier");
     $price = $request->request->get("price");
     $input = [
       'name' => $name,
-      'discription' => $discription,
+      'description' => $description,
       'quantity' => $quantity,
-      'size' => $size,
-      'color' => $color,
       'type' => $type,
       'supplier' => $supplier,
       'price' => $price,
     ];
     $constraints = new Assert\Collection([
       'name' => [new Assert\NotBlank],
-      'discription' => [new Assert\NotBlank],
+      'description' => [new Assert\NotBlank],
       'quantity' => [new Assert\NotBlank],
-      'size' => [new Assert\NotBlank],
-      'color' => [new Assert\NotBlank],
       'type' => [new Assert\NotBlank],
       'supplier' => [new Assert\NotBlank],
       'price' => [new Assert\NotBlank],
@@ -260,9 +356,13 @@ class ProductController extends AbstractController
         $violation->getMessage());
       }
       $sizes = $this->sizes();
+      $types = $this->types();
+      $colors = $this->colors();
       $product = $this->getDoctrine()->getRepository(Product::class)->find($id);
       return $this->render('pages/admin/product/edit.html.twig', [
         'sizes' => $sizes,
+        'types' => $types,
+        'colors' => $colors,
         'product' => $product,
         'errors' => $errorMessages,
         'old' => $input
@@ -273,16 +373,22 @@ class ProductController extends AbstractController
     $product = $doct->getRepository(Product::class)->find($id);
     $name = $request->request->get('name');
     $product->setName($name);
-    $discription = $request->request->get('discription');
-    $product->setDiscription($discription);
+    $description = $request->request->get('description');
+    $product->setDescription($description);
     $quantity = $request->request->get('quantity');
     $product->setQuantity($quantity);
-    $size = $request->request->get('size');
-    $product->setSize($size);
-    $color = $request->request->get('color');
-    $product->setColor($color);
     $type = $request->request->get('type');
     $product->setType($type);
+    if ($type === 'equipement' || $type === 'accessoires') {
+      $product->setSize('');
+      $product->setColor('');
+    }
+    else {
+      $size = $request->request->get('size');
+      $product->setSize($size);
+      $color = $request->request->get('color');
+      $product->setColor($color);
+    }
     $supplier = $request->request->get('supplier');
     $product->setSupplier($supplier);
     $price = $request->request->get('price');
@@ -308,17 +414,6 @@ class ProductController extends AbstractController
       // updates the 'brochureFilename' property to store the PDF file name
       // instead of its contents
       $product->setImage('upload/products/'.$newFilename);
-    }
-    else {
-      $errorMessages = ['image' => 'this field is require'];
-      $sizes = $this->sizes();
-      $product = $this->getDoctrine()->getRepository(Product::class)->find($id);
-      return $this->render('pages/admin/product/edit.html.twig', [
-        'product' => $product,
-        'sizes' => $sizes,
-        'errors' => $errorMessages,
-        'old' => $input
-      ]);
     }
     
     // update
@@ -344,32 +439,38 @@ class ProductController extends AbstractController
     ]);
   }
 
-  // /**
-  //  * @Route("/admin/blog/search", name="admin_blog_search")
-  //  */
-  // public function admin_search(Request $request): Response
-  // {
-  //     if (!$this->isAdmin())
-  //         return $this->redirectToRoute('deconnexion');
-  //     $type_id = $request->request->get('type_id');
-  //     $filter = [];
-  //     if ($type_id != '0')
-  //         $filter['type_id'] = $type_id;
-      
-  //     $doct = $this->getDoctrine()->getManager();
-  //     $blogs = $doct->getRepository(Blog::class)->findWithFilter($filter);
-  //     foreach($blogs as $blog) {
-  //         $blogtype = $this->getDoctrine()->getRepository(Blogtype::class)->find($blog->getTypeId());
-  //         $blog->type = $blogtype->getName();
-  //         $blog->user = $this->getDoctrine()->getRepository(User::class)->find($blog->getUserId());
-  //     }
-  //     $types = $doct->getRepository(Blogtype::class)->findAll();
-  //     return $this->render('pages/admin/blog/index.html.twig', [
-  //         'blogs' => $blogs,
-  //         'filter' => $filter,
-  //         'types' => $types
-  //     ]);
-  // }
+  /**
+   * @Route("/admin/product/search", name="admin_product_search")
+   */
+  public function admin_search(Request $request): Response
+  {
+    $size = $request->request->get('size');
+    $color = $request->request->get('color');
+    $type = $request->request->get('type');
+    $filter = [];
+    if ($size != '0')
+      $filter['size'] = $size;
+    if ($color != '0')
+      $filter['color'] = $color;
+    if ($type != '0')
+      $filter['type'] = $type;
+    
+    $doct = $this->getDoctrine()->getManager();
+    $products = $doct->getRepository(Product::class)->findWithFilter($filter, 0, 1000);
+    foreach ($products as $product) {
+      $product->ocolor = $this->getColor($product->getColor());
+    }
+    $colors = $this->colors();
+    $types = $this->types();
+    $sizes = $this->sizes();
+    return $this->render('pages/admin/product/index.html.twig', [
+      'products' => $products,
+      'colors' => $colors,
+      'types' => $types,
+      'sizes' => $sizes,
+      'filter' => $filter
+    ]);
+  }
 
   private function generateRandomString($length = 10) {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -383,5 +484,33 @@ class ProductController extends AbstractController
 
   private function sizes() {
     return ['l', 'm', 's'];
+  }
+
+  private function types() {
+    return [
+      'equipement',
+      'accessoires',
+      'trousers',
+      'hood',
+    ];
+  }
+
+  private function colors() {
+    return [
+      ['name' => 'red', 'value' => '#ff0000'],
+      ['name' => 'blue', 'value' => '#0000ff'],
+      ['name' => 'yellow', 'value' => '#00ff00'],
+      ['name' => 'green', 'value' => '#008000'],
+      ['name' => 'gray', 'value' => '#808080'],
+    ];
+  }
+
+  private function getColor($name) {
+    $colors = $this->colors();
+    foreach($colors as $color) {
+      if ($color['name'] === $name)
+        return $color;
+    }
+    return ['name' => '', 'value' => ''];
   }
 }

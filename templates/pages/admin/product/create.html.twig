@@ -34,14 +34,14 @@
               </div>
               <div class="col-lg-6 offset-lg-3 col-md-12">
                 <div class="form-group">
-                  <label for="discription">Discription</label>
-                  {% if (old is defined) and ('discription' in old|keys) %}
-                  <textarea class="form-control textarea" name="discription">{{old.discription}}</textarea>
+                  <label for="description">Description</label>
+                  {% if (old is defined) and ('description' in old|keys) %}
+                  <textarea class="form-control textarea" name="description">{{old.description}}</textarea>
                   {% else %}
-                  <textarea class="form-control textarea" name="discription"></textarea>
+                  <textarea class="form-control textarea" name="description"></textarea>
                   {% endif %}
-                  {% if (errors is defined) and ('discription' in errors|keys) %}
-                  <span style="color: red;">{{ errors.discription }}</span>
+                  {% if (errors is defined) and ('description' in errors|keys) %}
+                  <span style="color: red;">{{ errors.description }}</span>
                   {% endif %}
                 </div>
               </div>
@@ -73,8 +73,18 @@
               </div>
               <div class="col-lg-6 offset-lg-3 col-md-12">
                 <div class="form-group">
+                  <label>Type</label>
+                  <select name="type" class="custom-select" id="type">
+                    {% for type in types %}
+                    <option value="{{ type }}">{{ type }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-6 offset-lg-3 col-md-12">
+                <div class="form-group">
                   <label>Size</label>
-                  <select name="size" class="custom-select">
+                  <select name="size" class="custom-select" id="size">
                     {% for size in sizes %}
                     <option value="{{ size }}">{{ size }}</option>
                     {% endfor %}
@@ -83,28 +93,12 @@
               </div>
               <div class="col-lg-6 offset-lg-3 col-md-12">
                 <div class="form-group">
-                  <label for="color">Color</label>
-                  {% if (old is defined) and ('color' in old|keys) %}
-                  <input type="text" class="form-control" name="color" id="color" value="{{ old.color }}">
-                  {% else %}
-                  <input type="text" class="form-control" name="color" id="color">
-                  {% endif %}
-                  {% if (errors is defined) and ('color' in errors|keys) %}
-                  <span style="color: red;">{{ errors.color }}</span>
-                  {% endif %}
-                </div>
-              </div>
-              <div class="col-lg-6 offset-lg-3 col-md-12">
-                <div class="form-group">
-                  <label for="type">Type</label>
-                  {% if (old is defined) and ('type' in old|keys) %}
-                  <input type="text" class="form-control" name="type" id="type" value="{{ old.type }}">
-                  {% else %}
-                  <input type="text" class="form-control" name="type" id="type">
-                  {% endif %}
-                  {% if (errors is defined) and ('type' in errors|keys) %}
-                  <span style="color: red;">{{ errors.type }}</span>
-                  {% endif %}
+                  <label>Color</label>
+                  <select name="color" class="custom-select" id="color">
+                    {% for color in colors %}
+                    <option value="{{ color.name }}">{{ color.name }}</option>
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
               <div class="col-lg-6 offset-lg-3 col-md-12">
@@ -144,12 +138,33 @@
 </div>
 {% endblock %}
 
-{% block javascript %}
+{% block javascripts %}
 <script>
   // Add the following code if you want the name of the file appear on select
   $(".custom-file-input").on("change", function() {
     var fileName = $(this).val().split("\\").pop();
     $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
   });
-  </script>
+  if ($("#type option:selected").text() === 'equipement' || $("#type option:selected").text() === 'accessoires') {
+    $("#size").prop('disabled', 'disabled');
+    $("#color").prop('disabled', 'disabled');
+  }
+  else {
+    $("#size").prop('disabled', false);
+    $("#color").prop('disabled', false);
+  }
+  $(document).ready(function(){
+    $("#type").change(function(event){
+      console.log(event.target.value);
+      if (event.target.value === 'equipement' || event.target.value === 'accessoires') {
+        $("#size").prop('disabled', 'disabled');
+        $("#color").prop('disabled', 'disabled');
+      }
+      else {
+        $("#size").prop('disabled', false);
+        $("#color").prop('disabled', false);
+      }
+    });
+  });
+</script>
 {% endblock %}

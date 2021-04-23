@@ -22,42 +22,49 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-xl-10">
-        <div class="table-responsive-xl">
-          <table class="table table-layout-1">
-            <tbody>
-              {% for cart in carts %}
-              <tr>
-                <td style="width: 140px">
-                  <div class="image-box image-box-2"><img class="image" src="{{asset(cart.product.getImage)}}" alt="" width="79" height="79"/>
-                  </div>
-                </td>
-                <td style="width: 370px; min-width: 370px">
-                  <h5><a href="{{ path('product_detail', {'id': cart.product.getId}) }}">{{ cart.product.getName }}</a></h5>
-                  <p>{{ cart.product.getDiscription }}</p>
-                </td>
-                <td class="h5">${{ cart.product.getPrice }}</td>
-                <td>
-                  <input type="number" value="{{cart.getQuantity}}" name="qty-cart-1" data-spinner>
-                </td>
-                <td class="h5 text-primary">${{ cart.product.getPrice * cart.getQuantity }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <div class="group-15 group-offset-1 d-flex flex-wrap">
-          <a class="btn" href="{{ path('checkout') }}">Checkout</a>
-          <form class="rd-form rd-form-boxed">
+        <form action="{{ path('checkout') }}" method="POST">
+          <div class="table-responsive-xl">
+            <table class="table table-layout-1">
+              <tbody>
+                {% for cart in carts %}
+                <tr>
+                  <td style="width: 140px">
+                    <div class="image-box image-box-2"><img class="image" src="{{asset(cart.product.getImage)}}" alt="" width="79" height="79"/>
+                    </div>
+                  </td>
+                  <td style="width: 370px; min-width: 370px">
+                    <h5><a href="{{ path('product_detail', {'id': cart.product.getId}) }}">{{ cart.product.getName }}</a></h5>
+                    <p>{{ cart.product.getDescription }}</p>
+                  </td>
+                  <td class="h5">${{ cart.product.getPrice }}</td>
+                  <td>
+                    <input type="number" value="{{cart.getQuantity}}" name="{{cart.getId}}" data-spinner>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="group-15 group-offset-1 d-flex flex-wrap">
+            <button type="submit" class="btn">Checkout</button>
             <div class="form-group">
               <div class="form-validation-wrap">
                 <input class="form-control" type="text" name="promocode" placeholder="Promocode">
               </div>
             </div>
-            <button class="btn btn-outline" type="submit">Active</button>
-          </form>
-        </div>
+            <div class="btn btn-outline">Active</div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </section>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(document).ready(function(){
+  
+});
+</script>
 {% endblock %}
