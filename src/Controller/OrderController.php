@@ -12,8 +12,11 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 use App\Entity\Product;
 use App\Entity\Cart;
 use App\Entity\Order;
+use App\Entity\LineOrder;
 use \Datetime;
 use \DateInterval;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class OrderController extends AbstractController
 {
@@ -180,42 +183,37 @@ class OrderController extends AbstractController
     
     $doct = $this->getDoctrine()->getManager();
     $carts = $this->getDoctrine()->getRepository(Cart::class)->findAll();
-    $max_order_id = $this->max_order_id();
+    if (!$this->isValidOrder($carts)) {
+      $this->cleanCart();
+      return $this->render('pages/order/checkout_fail.html.twig', []);
+    }
+
+    // save order
+    $order = new Order();
+    $first_name = $request->request->get('first_name');
+    $order->setFirstName($first_name);
+    $last_name = $request->request->get('last_name');
+    $order->setLastName($last_name);
+    $email = $request->request->get('email');
+    $order->setEmail($email);
+    $company = $request->request->get('company');
+    $order->setCompany($company);
+    $shipping_address = $request->request->get('shipping_address');
+    $order->setShippingAddress($shipping_address);
+    $country = $request->request->get('country');
+    $order->setCountry($country);
+    $zip_code = $request->request->get('zip_code');
+    $order->setZipCode($zip_code);
+    $comment = $request->request->get('comment');
+    $order->setComment($comment);
+    $date = new DateTime();
+    $date->add(new DateInterval('P1D'));
+    $order->setDate($date);
+    $order->setUserId(1);
+    $doct->persist($order);
+    $doct->flush();
     foreach ($carts as $cart) {
-      // save order
-      $order = new Order();
-      $first_name = $request->request->get('first_name');
-      $order->setFirstName($first_name);
-      $last_name = $request->request->get('last_name');
-      $order->setLastName($last_name);
-      $email = $request->request->get('email');
-      $order->setEmail($email);
-      $company = $request->request->get('company');
-      $order->setCompany($company);
-      $shipping_address = $request->request->get('shipping_address');
-      $order->setShippingAddress($shipping_address);
-      $country = $request->request->get('country');
-      $order->setCountry($country);
-      $zip_code = $request->request->get('zip_code');
-      $order->setZipCode($zip_code);
-      $comment = $request->request->get('comment');
-      $order->setComment($comment);
-      $product = $this->getDoctrine()->getRepository(Product::class)->find($cart->getProductId());
-      $order->setProductId($cart->getProductId());
-      $order->setQuantity($cart->getQuantity());
-      $order->setPrice($product->getPrice() * $cart->getQuantity());
-      $date = new DateTime();
-      $date->add(new DateInterval('P1D'));
-      $order->setDate($date);
-      $order->setUserId(1);
-      $order->setOrderId($max_order_id + 1);
-      // update product quantity
-      if ($product->getQuantity() < $cart->getQuantity()) {
-        $this->clean_cart();
-        return $this->render('pages/order/checkout_fail.html.twig', []);
-      }
-      $product->setQuantity($product->getQuantity() - $cart->getQuantity());
-      $doct->persist($order);
+      $this->attachLineOrder($order->getId(), $cart->getProductId(), $cart->getQuantity());
       // remove cart
       $doct->remove($cart);
     }
@@ -224,17 +222,18 @@ class OrderController extends AbstractController
     ]);
   }
 
-  private function max_order_id() {
-    $doct = $this->getDoctrine()->getManager();
-    if (count($doct->getRepository(Order::class)->findAll()) === 0)
-      return 0;
-    else {
-      $max_order = $this->getDoctrine()->getRepository(Order::class)->findMaxOrder();
-      return $max_order[0]->getOrderId();
+  private function isValidOrder($carts) {
+    $is_validate = true;
+    foreach ($carts as $cart) {
+      $product = $this->getDoctrine()->getRepository(Product::class)->find($cart->getProductId());
+      if ($product->getQuantity() < $cart->getQuantity()) {
+        $is_validate = false;
+      }
     }
+    return $is_validate;
   }
 
-  private function clean_cart() {
+  private function cleanCart() {
     $doct = $this->getDoctrine()->getManager();
     $carts = $doct->getRepository(Cart::class)->findAll();
     foreach ($carts as $cart) {
@@ -252,11 +251,80 @@ class OrderController extends AbstractController
     //     return $this->redirectToRoute('deconnexion');
     $orders = $this->getDoctrine()->getRepository(Order::class)->findAll();
     foreach ($orders as $order) {
-      $order->product = $this->getDoctrine()->getRepository(Product::class)->find($order->getProductId());
       $order->str_date = $order->getDate()->format('Y-m-d');
+      $products = $this->getAllOrderProduct($order->getId());
+      $total_price = 0;
+      $total_number = 0;
+      foreach ($products as $product) {
+        $total_price = $total_price + $product->product->getPrice() * $product->getQuantity();
+        $total_number = $total_number + $product->getQuantity();
+      }
+      $order->total_price = $total_price;
+      $order->total_number = $total_number;
     }
     return $this->render('pages/admin/order/index.html.twig', [
       'orders' => $orders,
+    ]);
+  }
+
+  /**
+   * @Route("/admin/order/detail/{id}", name="admin_order_detail")
+   */
+  public function admin_detail($id): Response
+  {
+    // if (!$this->isAdmin())
+    //     return $this->redirectToRoute('deconnexion');
+    $order = $this->getDoctrine()->getRepository(Order::class)->find($id);
+    $products = $this->getAllOrderProduct($order->getId());
+    $total_price = 0;
+    foreach ($products as $product) {
+      $total_price = $total_price + $product->getQuantity() * $product->product->getPrice();
+    }
+    return $this->render('pages/admin/order/detail.html.twig', [
+      'products' => $products,
+      'order' => $order,
+      'total_price' => $total_price,
+    ]);
+  }
+
+  /**
+   * @Route("/admin/order/download/{id}", name="admin_order_download")
+   */
+  public function admin_download($id): Response
+  {
+    // if (!$this->isAdmin())
+    //     return $this->redirectToRoute('deconnexion');
+    $order = $this->getDoctrine()->getRepository(Order::class)->find($id);
+    $products = $this->getAllOrderProduct($order->getId());
+    $total_price = 0;
+    foreach ($products as $product) {
+      $total_price = $total_price + $product->getQuantity() * $product->product->getPrice();
+    }
+    $pdfOptions = new Options();
+    $pdfOptions->set('defaultFont', 'Arial');
+    
+    // Instantiate Dompdf with our options
+    $dompdf = new Dompdf($pdfOptions);
+    
+    // Retrieve the HTML generated in our twig file
+    $html = $this->renderView('pages/admin/order/pdf.html.twig', [
+      'products' => $products,
+      'order' => $order,
+      'total_price' => $total_price,
+    ]);
+    
+    // Load HTML to Dompdf
+    $dompdf->loadHtml($html);
+    
+    // (Optional) Setup the paper size and orientation 'portrait' or 'portrait'
+    $dompdf->setPaper('A4', 'portrait');
+
+    // Render the HTML as PDF
+    $dompdf->render();
+
+    // Output the generated PDF to Browser (force download)
+    $dompdf->stream( "order_" . $order->getId() . ".pdf", [
+      "Attachment" => true
     ]);
   }
 
@@ -410,6 +478,7 @@ class OrderController extends AbstractController
     //     return $this->redirectToRoute('deconnexion');
     $doct = $this->getDoctrine()->getManager();
     $order = $doct->getRepository(Order::class)->find($id);
+    $this->removeOrder($order.getId());
     $doct->remove($order);
     $doct->flush();
     return $this->redirectToRoute('admin_order', [
@@ -455,4 +524,45 @@ class OrderController extends AbstractController
   // private function sizes() {
   //   return ['l', 'm', 's'];
   // }
+
+  private function attachLineOrder($order_id, $product_id, $quantity) {
+    $doct = $this->getDoctrine()->getManager();
+    $old = $doct->getRepository(LineOrder::class)->findWithFilter(['order_id' => $order_id, 'product_id' => $product_id]);
+    if (count($old) === 0) {
+      $line_order = new LineOrder();
+      $line_order->setOrderId($order_id);
+      $line_order->setProductId($product_id);
+      $line_order->setQuantity($quantity);
+      // save
+      $doct->persist($line_order);
+      $doct->flush();
+    }
+  }
+
+  private function detachLineOrder($order_id, $product_id) {
+    $doct = $this->getDoctrine()->getManager();
+    $old = $doct->getRepository(LineOrder::class)->findWithFilter(['order_id' => $order_id, 'product_id' => $product_id]);
+    if (count($old) !== 0) {
+      $doct->remove($old[0]);
+      $doct->flush();
+    }
+  }
+
+  private function removeOrder($order_id) {
+    $doct = $this->getDoctrine()->getManager();
+    $products = $doct->getRepository(LineOrder::class)->findWithFilter(['order_id' => $order_id]);
+    foreach ($products as $product) {
+      $doct->remove($product);
+    }
+    $doct->flush();
+  }
+
+  private function getAllOrderProduct($order_id) {
+    $doct = $this->getDoctrine()->getManager();
+    $products = $doct->getRepository(LineOrder::class)->findWithFilter(['order_id' => $order_id]);
+    foreach ($products as $product) {
+      $product->product = $doct->getRepository(Product::class)->find($product->getId());
+    }
+    return $products;
+  }
 }

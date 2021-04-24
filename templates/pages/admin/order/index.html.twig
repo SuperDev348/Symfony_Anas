@@ -34,9 +34,6 @@
               </div>
             </div>
           </form>
-          <div class="mb-3" style="float: right;">
-            <a type="submit" class="btn btn-primary btn-round text-white" href="{{ path('admin_order_create') }}">Create Order</a>
-          </div>
           <div class="table-responsive">
             <table class="table">
               <thead class=" text-primary">
@@ -44,16 +41,13 @@
                   Id
                 </th>
                 <th>
-                  Product
-                </th>
-                <th>
-                  Quantity
-                </th>
-                <th>
-                  Price
-                </th>
-                <th>
                   Shipping Address
+                </th>
+                <th>
+                  Total Price
+                </th>
+                <th>
+                  Total Number
                 </th>
                 <th>
                   Delivery Date
@@ -65,14 +59,13 @@
               <tbody>
                 {% for order in orders %}
                 <tr>
-                  <td>{{ order.getOrderId }}</td>
-                  <td>{{ order.product.getName }}</td>
-                  <td>{{ order.getQuantity }}</td>
-                  <td>$ {{ order.getPrice }}</td>
+                  <td>{{ order.getId }}</td>
                   <td>{{ order.getShippingAddress }}</td>
+                  <td>$ {{ order.total_price }}</td>
+                  <td>{{ order.total_number }}</td>
                   <td>{{ order.str_date }}</td>
                   <td>
-                    <a href="{{ path('admin_order_edit', {'id': order.getId}) }}" class="mr-3" title="Edit"><i class="fa fa-edit"></i></a>
+                    <a href="{{ path('admin_order_detail', {'id': order.getId}) }}" class="mr-3" title="Detail"><i class="fa fa-eye"></i></a>
                     <a href="{{ path('admin_order_delete', {'id': order.getId}) }}" class="" title="Delete"><i class="fa fa-trash" style="color: red;"></i></a>
                   </td>
                 </tr>

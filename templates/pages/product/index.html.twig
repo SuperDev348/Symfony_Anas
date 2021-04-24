@@ -37,10 +37,12 @@
               <div class="product-media"><img class="product-img" src="{{ asset(product.getImage) }}" alt="" width="252" height="255"/>
                 <div class="product-btns">
                   <a class="product-btn mdi-cart" href="{{ path('cart_add', {'id': product.getId}) }}"></a>
-                  <a class="product-btn product-btn-tertiary mdi-magnify" data-lightgallery='{"selector":"this"}' href="{{ asset(product.getImage) }}"></a>
+                  <a class="product-btn product-btn-tertiary mdi-magnify" href="{{ path('product_detail', {'id': product.getId}) }}"></a>
                 </div>
               </div>
-              <div class="product-title h4"><a href="{{ path('product_detail', {'id': product.getId}) }}">{{ product.getName }}</a></div>
+              <div class="product-title h4">
+                <a href="{{ path('product_detail', {'id': product.getId}) }}">{{ product.getName }}</a>
+              </div>
               <div class="product-price">${{ product.getPrice }}</div>
             </div>
           </div>

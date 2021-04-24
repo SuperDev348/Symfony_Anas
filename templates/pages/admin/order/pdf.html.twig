@@ -1,0 +1,87 @@
+<html>
+<head>
+  <style>
+    .title {
+      text-align: center;
+    }
+    .card-body {
+      display: flex;
+      justify-content: center;
+    }
+    .item {
+      padding-top: 10px;
+    }
+    .item-title {
+      padding-right: 20px;
+      font-size: 18px;
+    }
+    .product-header {
+      color: green;
+      float: left;
+      width: 70px;
+    }
+    .product-item {
+      float: left;
+      width: 70px;
+    }
+  </style>
+</head>
+<body>
+  <h4 class="title">Order</h4>
+  <div class="card-body">
+    <div>
+      <div class="item">
+        <span class="item-title">Email:</span>
+        <span>{{order.getEmail}}</span>
+      </div>
+      <div class="item">
+        <span class="item-title">First Name:</span>
+        <span>{{order.getFirstName}}</span>
+      </div>
+      <div class="item">
+        <span class="item-title">Last Name:</span>
+        <span>{{order.getLastName}}</span>
+      </div>
+      <div class="item">
+        <span class="item-title">Company:</span>
+        <span>{{order.getCompany}}</span>
+      </div>
+      <div class="item">
+        <span class="item-title">Shipping Address:</span>
+        <span>{{order.getShippingAddress}}</span>
+      </div>
+      <div class="item">
+        <span class="item-title">Country:</span>
+        <span>{{order.getCountry}}</span>
+      </div>
+      <div class="item">
+        <span class="item-title">ZipCode:</span>
+        <span>{{order.getZipCode}}</span>
+      </div>
+      <div class="item">
+        <span class="item-title">Products:</span>
+      </div>
+      <div style="padding-left: 10px;">
+        <div class="product-header">Id</div>
+        <div class="product-header">Product</div>
+        <div class="product-header">Quantity</div>
+        <div class="product-header">Price</div>
+      </div>
+      <br>
+      {% for product in products %}
+      <div style="padding-left: 10px;">
+        <div class="product-item">{{ product.getId }}</div>
+        <div class="product-item">{{ product.product.getName }}</div>
+        <div class="product-item">{{ product.getQuantity }}</div>
+        <div class="product-item">$ {{ product.getQuantity * product.product.getPrice }}</div>
+      </div>
+      <br>
+      {% endfor %}
+      <div class="item" style="text-align: center;">
+        <span class="item-title" style="color: blue;">Total:</span>
+        <span>$ {{ total_price }}</span>
+      </div> 
+    </div>
+  </div>
+</body>
+</html>
