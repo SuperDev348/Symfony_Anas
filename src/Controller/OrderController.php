@@ -478,7 +478,7 @@ class OrderController extends AbstractController
     //     return $this->redirectToRoute('deconnexion');
     $doct = $this->getDoctrine()->getManager();
     $order = $doct->getRepository(Order::class)->find($id);
-    $this->removeOrder($order.getId());
+    $this->removeOrder($order->getId());
     $doct->remove($order);
     $doct->flush();
     return $this->redirectToRoute('admin_order', [
@@ -561,7 +561,7 @@ class OrderController extends AbstractController
     $doct = $this->getDoctrine()->getManager();
     $products = $doct->getRepository(LineOrder::class)->findWithFilter(['order_id' => $order_id]);
     foreach ($products as $product) {
-      $product->product = $doct->getRepository(Product::class)->find($product->getId());
+      $product->product = $doct->getRepository(Product::class)->find($product->getProductId());
     }
     return $products;
   }
