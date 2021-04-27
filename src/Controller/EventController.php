@@ -10,14 +10,47 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class EventController extends AbstractController
 {
+    protected $session;
+    public function __construct(SessionInterface $session)
+    {
+        $this->session = $session;
+    }
+
+    private function isAuth() {
+        if(is_null($this->session->get('user'))){
+        return false;
+        }
+        // $user = $this->getDoctrine()->getRepository(User::class)->find($this->session->get('user')->getId());
+        // if ($user->getBan()) {
+        //   $this->session->clear();
+        //   return false;
+        // }
+        return true;
+    }
+
+    private function isAdmin() {
+        if(is_null($this->session->get('user'))||$this->session->get('user')->getRole()!="admin"){
+        return false;
+        }
+        // $user = $this->getDoctrine()->getRepository(User::class)->find($this->session->get('user')->getId());
+        // if ($user->getBan()) {
+        //   $this->session->clear();
+        //   return false;
+        // }
+        return true;
+    }
+
     /**
      * @Route("/admin/events", name="admin_events")
      */
     public function eventList(Request $request, EntityManagerInterface $manager, \Swift_Mailer $mailer): Response
     {
+        if (!$this->isAdmin())
+            return $this->redirectToRoute('login');
         $events = $this->getDoctrine()->getRepository(Event::class)->findAll();
 
         $event = new Event();
@@ -55,6 +88,8 @@ class EventController extends AbstractController
      */
     public function triEvent(Request $request, EventRepository $manager, \Swift_Mailer $mailer): Response
     {
+        if (!$this->isAdmin())
+            return $this->redirectToRoute('login');
         $events = $manager->trier();
         $event = new Event();
         $form = $this->createForm(EventFormType::class, $event);
@@ -91,6 +126,8 @@ class EventController extends AbstractController
      */
     public function search(Request $request, EventRepository $manager, \Swift_Mailer $mailer): Response
     {
+        if (!$this->isAdmin())
+            return $this->redirectToRoute('login');
         $events = $manager->search($request->request->get('search'));
         $event = new Event();
         $form = $this->createForm(EventFormType::class, $event);
@@ -127,6 +164,8 @@ class EventController extends AbstractController
      */
     public function update(Request $request, EntityManagerInterface $manager, $id): Response
     {
+        if (!$this->isAdmin())
+            return $this->redirectToRoute('login');
         if ($request->isMethod('post')) {
             // your code
             $event = $this->getDoctrine()->getRepository(Event::class)->find($id);
@@ -156,6 +195,8 @@ class EventController extends AbstractController
      */
     public function delete($id, EntityManagerInterface $manager): Response
     {
+        if (!$this->isAdmin())
+            return $this->redirectToRoute('login');
         $event = $this->getDoctrine()->getRepository(Event::class)->find($id);
         $manager->remove($event);
         $manager->flush();
@@ -168,6 +209,8 @@ class EventController extends AbstractController
      */
     public function listeEventFront(EntityManagerInterface $manager): Response
     {
+        if (!$this->isAuth())
+            return $this->redirectToRoute('login');
         $events = $this->getDoctrine()->getRepository(Event::class)->findAll();
         return $this->render('pages/event/liste_event_front.html.twig', ["events"=>$events]);
     }
@@ -177,6 +220,8 @@ class EventController extends AbstractController
      */
     public function getEvent(): Response
     {
+        if (!$this->isAuth())
+            return $this->redirectToRoute('login');
         #$event = $this->getDoctrine()->getRepository(Event::class)->find($id);
         return $this->render('pages/event/event.html.twig');
     }
