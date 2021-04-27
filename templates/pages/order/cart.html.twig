@@ -46,14 +46,16 @@
             </table>
           </div>
           <div class="group-15 group-offset-1 d-flex flex-wrap">
-            <button type="submit" class="btn">Checkout</button>
-            <div class="form-group">
-              <div class="form-validation-wrap">
-                <input class="form-control" type="text" name="promocode" placeholder="Promocode">
-              </div>
+            <div class="form-group select-wrap">
+              <label class="form-label" for="promocode">Promocode</label>
+              <select class="select2" id="promocode" name="promocode" data-select2-options='{"placeholder":"Your Country"}'>
+                {% for promotion in promotions %}
+                <option value="{{promotion.getId}}">{{ promotion.getTitre }}</option>
+                {% endfor %}
+              </select>
             </div>
-            <div class="btn btn-outline">Active</div>
           </div>
+          <button type="submit" class="btn">Checkout</button>
         </form>
       </div>
     </div>

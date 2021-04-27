@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use App\Entity\Product;
+use App\Entity\User;
 
 class ProductController extends AbstractController
 {
@@ -23,23 +24,23 @@ class ProductController extends AbstractController
     if(is_null($this->session->get('user'))){
       return false;
     }
-    $user = $this->getDoctrine()->getRepository(User::class)->find($this->session->get('user')->getId());
-    if ($user->getBan()) {
-      $this->session->clear();
-      return false;
-    }
+    // $user = $this->getDoctrine()->getRepository(User::class)->find($this->session->get('user')->getId());
+    // if ($user->getBan()) {
+    //   $this->session->clear();
+    //   return false;
+    // }
     return true;
   }
 
   private function isAdmin() {
-    if(is_null($this->session->get('user'))||$this->session->get('user')->getType()!="admin"){
+    if(is_null($this->session->get('user'))||$this->session->get('user')->getRole()!="admin"){
       return false;
     }
-    $user = $this->getDoctrine()->getRepository(User::class)->find($this->session->get('user')->getId());
-    if ($user->getBan()) {
-      $this->session->clear();
-      return false;
-    }
+    // $user = $this->getDoctrine()->getRepository(User::class)->find($this->session->get('user')->getId());
+    // if ($user->getBan()) {
+    //   $this->session->clear();
+    //   return false;
+    // }
     return true;
   }
   /**
@@ -47,6 +48,8 @@ class ProductController extends AbstractController
    */
   public function index(): Response
   {
+    if (!$this->isAuth())
+      return $this->redirectToRoute('login');
     $products = $this->getDoctrine()->getRepository(Product::class)->findAll();
     $colors= $this->colors();
     $sizes = $this->sizes();
@@ -146,8 +149,8 @@ class ProductController extends AbstractController
    */
   public function admin_index(): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $products = $this->getDoctrine()->getRepository(Product::class)->findAll();
     foreach ($products as $product) {
       $product->ocolor = $this->getColor($product->getColor());
@@ -170,8 +173,8 @@ class ProductController extends AbstractController
    */
   public function admin_create(): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $sizes = $this->sizes();
     $types = $this->types();
     $colors = $this->colors();
@@ -187,8 +190,8 @@ class ProductController extends AbstractController
    */
   public function admin_store(Request $request, ValidatorInterface $validator): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $name = $request->request->get("name");
     $description = $request->request->get("description");
     $quantity = $request->request->get("quantity");
@@ -303,8 +306,8 @@ class ProductController extends AbstractController
    */
   public function admin_edit($id): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $product = $this->getDoctrine()->getRepository(Product::class)->find($id);
     $sizes = $this->sizes();
     $types = $this->types();
@@ -322,8 +325,8 @@ class ProductController extends AbstractController
    */
   public function admin_update($id, Request $request, ValidatorInterface $validator): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $name = $request->request->get("name");
     $description = $request->request->get("description");
     $quantity = $request->request->get("quantity");
@@ -428,8 +431,8 @@ class ProductController extends AbstractController
    */
   public function admin_delete($id): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $doct = $this->getDoctrine()->getManager();
     $product = $doct->getRepository(Product::class)->find($id);
     $doct->remove($product);
@@ -444,6 +447,8 @@ class ProductController extends AbstractController
    */
   public function admin_search(Request $request): Response
   {
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $size = $request->request->get('size');
     $color = $request->request->get('color');
     $type = $request->request->get('type');
@@ -488,10 +493,11 @@ class ProductController extends AbstractController
 
   private function types() {
     return [
-      'equipement',
-      'accessoires',
-      'trousers',
-      'hood',
+      'Équipement',
+      'Accessoires',
+      'Tshirts',
+      'Vestes',
+      'Pantalons',
     ];
   }
 

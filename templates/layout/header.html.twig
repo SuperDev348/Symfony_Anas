@@ -256,7 +256,13 @@
             </li>
           </ul>
         </div>
-        <div class="navbar-cell navbar-inner-navigation-cell"><a class="btn btn-sm btn-outline" href="login.html">Log in</a></div>
+        <div class="navbar-cell navbar-inner-navigation-cell">
+          {% if app.session.get('user') %}
+          <a class="btn btn-sm btn-outline" href="{{path('logout')}}">Log out</a>
+          {% else %}
+          <a class="btn btn-sm btn-outline" href="{{path('login')}}">Log in</a>
+          {% endif %}
+        </div>
       </div>
     </div>
   </nav>

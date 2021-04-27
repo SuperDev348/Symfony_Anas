@@ -388,12 +388,12 @@ demo = {
     marker.setMap(map);
   },
 
-  showNotification: function(from, align) {
+  showNotification: function(from, align, message) {
     color = 'primary';
 
     $.notify({
       icon: "nc-icon nc-bell-55",
-      message: "Welcome to <b>Paper Dashboard</b> - a beautiful bootstrap dashboard for every web developer."
+      message: message
 
     }, {
       type: color,

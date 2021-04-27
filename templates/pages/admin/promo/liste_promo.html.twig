@@ -1,0 +1,217 @@
+{% extends 'layout/admin/index.html.twig' %}
+
+{% block title %}
+<title>Promo - Admin</title>
+{% endblock %}
+
+{% block subtitle %}
+<a class="navbar-brand" href="javascript:;">Promos</a>
+{% endblock %}
+
+{% block body %}
+    <div class="content">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+            <h1 style="margin-right: 20px">Liste des Promotions</h1>
+            <button data-bs-toggle="modal" data-bs-target="#addModal" class="btn btn-outline-success" style="width: 100px"><i class="nc-icon nc-simple-add" style="font-size: 28px"></i></button>
+        </div>
+        <br>
+        {% if form.pourcentage.vars.errors|length %}
+            <div class="col-sm-12 alert alert-danger">{{ form_errors(form.pourcentage) }}</div>
+        {% endif %}
+        <br>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Pourcentage</th>
+                <th scope="col">Titre</th>
+                <th scope="col">Description</th>
+                <th scope="col">Date debut</th>
+                <th scope="col">Date fin</th>
+                <th scope="col">Type produit</th>
+                <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for promo in promos %}
+                <tr>
+                    <td >{{ promo.pourcentage }}</td>
+                    <td >{{ promo.titre }}</td>
+                    <td>{{ promo.description }}</td>
+                    <td>{{ promo.DateDebut|date("m-d-Y") }}</td>
+                    <td>{{ promo.DateFin|date("m-d-Y") }}</td>
+                    <td>{{ promo.typeProduit }}</td>
+                    <td><div style="display: flex">
+
+                            <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#updateModal{{ promo.id }}" style="margin-right: 10px"><i class="nc-icon nc-settings"></i></button>
+
+                            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ promo.id }}"><i class="nc-icon nc-simple-delete"></i></button>
+
+                        </div>
+                    </td>
+                </tr>
+                <!-- Delete Modal -->
+              <div class="modal fade" id="deleteModal{{ promo.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <br>
+                                <h5 class="modal-title" id="exampleModalLabel">Voulez vous supprimer la promotion {{ promo.titre }}</h5>
+                                <br>
+                                <div style="text-align: center">
+                                    <a type="button" href="{{ path('delete_promo', {'id':promo.id}) }}" class="btn btn-danger">Supprimer</a>
+                                    <a type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</a>
+                                </div>
+                                <br>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <!--  Update Modal -->
+                <div class="modal fade" id="updateModal{{ promo.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <form method="post" action="{{ path('update_promo', {'id':promo.id}) }}" enctype="multipart/form-data">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Modifier la promotion </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Titre</label>
+                                            <input type="text" maxlength="30" name="titre" value="{{ promo.titre }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <br>
+
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Type de produit</label>
+                                            <select name="type_produit" class="form-control">
+                                                <option value="{{ promo.typeProduit }}" selected>{{ promo.typeProduit }}</option>
+                                                <option value="Tshirts">Tshirts</option>
+                                                <option value="Vestes">Vestes</option>
+                                                <option value="Equipement">Equipement</option>
+                                                <option value="Pantalons">Pantalons</option>
+                                                <option value="Accessoires">Accessoires</option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Pourcentage</label>
+                                            <input type="number" min="1" max="99" name="pourcentage" value="{{ promo.pourcentage }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <br>
+
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Description</label>
+                                            <textarea name="description" class="form-control">{{ promo.description }}</textarea>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Date debut</label>
+                                            <input type="date" name="DateDebut" value="{{ promo.dateDebut|date('Y-m-d') }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Date fin</label>
+                                            <input type="date" name="DateFin" value="{{ promo.dateFin|date('Y-m-d') }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <br>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Modifier</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                </div>
+                                </div>
+                            </form>
+                        </div>
+            </div>
+
+            {% endfor %}
+                </div>
+            </tbody>
+
+        </table>
+    </div>
+
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ajouter une nouvelle Promotion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <br>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label class="form__label">Titre</label>
+                            {{ form_widget(form.titre, {'attr': {'placeholder': 'Titre du projet', 'class':'form-control', 'type':'text'}}) }}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label class="form__label">Pourcentage</label>
+                            {{ form_widget(form.pourcentage, {'attr': {'placeholder': 'Pourcentage du projet', 'class':'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label class="form__label">Type de produit</label>
+                            {{ form_widget(form.typeProduit, {'class':'form-control'}) }}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+
+                        <div class="col-md-12">
+                            <label class="form__label">Description</label>
+                            {{ form_widget(form.description, {'attr': {'placeholder': 'Description du projet', 'class':'form-control', 'type':'text'}}) }}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+
+                        <div class="col-md-12">
+                            <label class="form__label">Date debut</label>
+                            {{ form_widget(form.date_debut, {'attr': {'class':'form-control'}}) }}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label class="form__label">Date fin</label>
+                            {{ form_widget(form.date_fin, {'attr': {'class':'form-control'}}) }}
+                        </div>
+                    </div>
+                    <br>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

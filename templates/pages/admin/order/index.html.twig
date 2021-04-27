@@ -60,7 +60,7 @@
                 {% for order in orders %}
                 <tr>
                   <td>{{ order.getId }}</td>
-                  <td>{{ order.getShippingAddress }}</td>
+                  <td>{{ order.user.getAddress }}</td>
                   <td>$ {{ order.total_price }}</td>
                   <td>{{ order.total_number }}</td>
                   <td>{{ order.str_date }}</td>

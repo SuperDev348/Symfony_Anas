@@ -33,7 +33,7 @@
                     {% if (old is defined) and ('first_name' in old|keys) %}
                     <input class="form-control" id="first_name" type="text" name="first_name" placeholder="Your First name" data-constraints="@Required"  value="{{ old.first_name }}">
                     {% else %}
-                    <input class="form-control" id="first_name" type="text" name="first_name" placeholder="Your First name" data-constraints="@Required">
+                    <input class="form-control" id="first_name" type="text" name="first_name" placeholder="Your First name" data-constraints="@Required" value="{{ user.getFirstName }}">
                     {% endif %}
                     {% if (errors is defined) and ('first_name' in errors|keys) %}
                     <span style="color: red;">{{ errors.first_name }}</span>
@@ -48,7 +48,7 @@
                     {% if (old is defined) and ('last_name' in old|keys) %}
                     <input class="form-control" id="last_name" type="text" name="last_name" placeholder="Your Last name" data-constraints="@Required" value="{{ old.last_name }}">
                     {% else %}
-                    <input class="form-control" id="last_name" type="text" name="last_name" placeholder="Your Last name" data-constraints="@Required">
+                    <input class="form-control" id="last_name" type="text" name="last_name" placeholder="Your Last name" data-constraints="@Required" value="{{ user.getLastName }}">
                     {% endif %}
                     {% if (errors is defined) and ('last_name' in errors|keys) %}
                     <span style="color: red;">{{ errors.last_name }}</span>
@@ -60,14 +60,7 @@
                 <div class="form-group">
                   <label class="form-label" for="email">E-mail</label>
                   <div class="form-validation-wrap">
-                    {% if (old is defined) and ('email' in old|keys) %}
-                    <input class="form-control" id="email" type="email" name="email" placeholder="Your E-mail" data-constraints="@Email @Required" value="{{ old.email }}">
-                    {% else %}
-                    <input class="form-control" id="email" type="email" name="email" placeholder="Your E-mail" data-constraints="@Email @Required">
-                    {% endif %}
-                    {% if (errors is defined) and ('email' in errors|keys) %}
-                    <span style="color: red;">{{ errors.email }}</span>
-                    {% endif %}
+                    <input class="form-control" id="email" type="email" name="email" placeholder="Your E-mail" data-constraints="@Email @Required" value="{{ user.getEmail }}" disabled>
                   </div>
                 </div>
               </div>
@@ -93,7 +86,7 @@
                     {% if (old is defined) and ('shipping_address' in old|keys) %}
                     <input class="form-control" id="shipping_address" type="text" name="shipping_address" placeholder="Your Address 1" data-constraints="@Required" value="{{ old.shipping_address }}">
                     {% else %}
-                    <input class="form-control" id="shipping_address" type="text" name="shipping_address" placeholder="Your Address 1" data-constraints="@Required">
+                    <input class="form-control" id="shipping_address" type="text" name="shipping_address" placeholder="Your Address 1" data-constraints="@Required" value="{{ user.getAddress }}">
                     {% endif %}
                     {% if (errors is defined) and ('shipping_address' in errors|keys) %}
                     <span style="color: red;">{{ errors.shipping_address }}</span>
@@ -104,10 +97,8 @@
               <div class="col-md-6">
                 <div class="form-group select-wrap">
                   <label class="form-label" for="checkout-country-input">Country</label>
-                  <select class="select2" id="checkout-country-input" name="country" data-select2-options='{"placeholder":"Your Country"}'>
-                    <option value="USA">USA</option>
-                    <option value="United Kindom">United Kindom</option>
-                    <option value="Canada">Canada</option>
+                  <select class="select2" id="checkout-country-input" name="country" data-select2-options='{"placeholder":"Your Country"}' value="{{ user.getCountry }}">
+                    <option value="Tunisia">Tunisia</option>
                   </select>
                 </div>
               </div>
@@ -157,11 +148,11 @@
                 {% endfor %}
                 <li class="list-item">
                   <div class="list-content">Promocode</div>
-                  <div class="list-content text-success">-10.00</div>
+                  <div class="list-content text-success">-${{ promocode_price }}</div>
                 </li>
                 <li class="list-item">
                   <div class="list-content">Shipping</div>
-                  <div class="list-content text-warning">${{ shipping_price }}</div>
+                  <div class="list-content text-warning">-${{ shipping_price }}</div>
                 </li>
                 <li class="list-item h5">
                   <div class="list-content">Total</div>

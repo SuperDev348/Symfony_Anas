@@ -13,6 +13,8 @@ use App\Entity\Product;
 use App\Entity\Cart;
 use App\Entity\Order;
 use App\Entity\LineOrder;
+use App\Entity\User;
+use App\Entity\Promotion;
 use \Datetime;
 use \DateInterval;
 use Dompdf\Dompdf;
@@ -30,23 +32,23 @@ class OrderController extends AbstractController
     if(is_null($this->session->get('user'))){
       return false;
     }
-    $user = $this->getDoctrine()->getRepository(User::class)->find($this->session->get('user')->getId());
-    if ($user->getBan()) {
-      $this->session->clear();
-      return false;
-    }
+    // $user = $this->getDoctrine()->getRepository(User::class)->find($this->session->get('user')->getId());
+    // if ($user->getBan()) {
+    //   $this->session->clear();
+    //   return false;
+    // }
     return true;
   }
 
   private function isAdmin() {
-    if(is_null($this->session->get('user'))||$this->session->get('user')->getType()!="admin"){
+    if(is_null($this->session->get('user'))||$this->session->get('user')->getRole()!="admin"){
       return false;
     }
-    $user = $this->getDoctrine()->getRepository(User::class)->find($this->session->get('user')->getId());
-    if ($user->getBan()) {
-      $this->session->clear();
-      return false;
-    }
+    // $user = $this->getDoctrine()->getRepository(User::class)->find($this->session->get('user')->getId());
+    // if ($user->getBan()) {
+    //   $this->session->clear();
+    //   return false;
+    // }
     return true;
   }
   /**
@@ -54,6 +56,8 @@ class OrderController extends AbstractController
    */
   public function cart_add($id): Response
   {
+    if (!$this->isAuth())
+      return $this->redirectToRoute('login');
     $doct = $this->getDoctrine()->getManager();
     $carts = $doct->getRepository(Cart::class)->findAll();
     $is_create = true;
@@ -66,7 +70,7 @@ class OrderController extends AbstractController
     if ($is_create) {
       $cart = new Cart();
       $cart->setProductId($id);
-      $cart->setUserId(1);
+      $cart->setUserId($this->session->get('user')->getId());
       $cart->setQuantity(1);
       $doct->persist($cart);
     }
@@ -79,6 +83,8 @@ class OrderController extends AbstractController
    */
   public function cart_update($id, Request $request): Response
   {
+    if (!$this->isAuth())
+      return $this->redirectToRoute('login');
     $doct = $this->getDoctrine()->getManager();
     $cart = $doct->getRepository(Cart::class)->find($id);
     $quantity = $request->request->get('quantity');
@@ -92,12 +98,16 @@ class OrderController extends AbstractController
    */
   public function cart(): Response
   {
+    if (!$this->isAuth())
+      return $this->redirectToRoute('login');
     $carts = $this->getDoctrine()->getRepository(Cart::class)->findAll();
     foreach ($carts as $cart) {
       $cart->product = $this->getDoctrine()->getRepository(Product::class)->find($cart->getProductId());
     }
+    $promotions = $this->getDoctrine()->getRepository(Promotion::class)->findAll();
     return $this->render('pages/order/cart.html.twig', [
       'carts' => $carts,
+      'promotions' => $promotions,
     ]);
   }
 
@@ -106,6 +116,8 @@ class OrderController extends AbstractController
    */
   public function checkout(Request $request): Response
   {
+    if (!$this->isAuth())
+      return $this->redirectToRoute('login');
     $doct = $this->getDoctrine()->getManager();
     $carts = $doct->getRepository(Cart::class)->findAll();
     $total_price = 0;
@@ -116,12 +128,16 @@ class OrderController extends AbstractController
       $total_price = $total_price + $cart->product->getPrice() * $cart->getQuantity();
     }
     $doct->flush();
+    $promocode = $doct->getRepository(Promotion::class)->find($request->request->get('promocode'));
+    $promocode_price = number_format($total_price * $promocode->getPourcentage() /100, 2, '.', ' ');
     $shipping_price = number_format($total_price * 19 /100, 2, '.', ' ');
-    $total_price = number_format($total_price + $shipping_price, 2, '.', ' ');;
+    $total_price = number_format($total_price + $shipping_price + $promocode_price, 2, '.', ' ');;
     return $this->render('pages/order/checkout.html.twig', [
       'carts' => $carts,
       'shipping_price' => $shipping_price,
+      'promocode_price' => $promocode_price,
       'total_price' => $total_price,
+      'user' => $this->session->get('user'),
     ]);
   }
 
@@ -130,9 +146,10 @@ class OrderController extends AbstractController
    */
   public function order_store(Request $request, ValidatorInterface $validator): Response
   {
+    if (!$this->isAuth())
+      return $this->redirectToRoute('login');
     $first_name = $request->request->get("first_name");
     $last_name = $request->request->get("last_name");
-    $email = $request->request->get("email");
     $company = $request->request->get("company");
     $shipping_address = $request->request->get("shipping_address");
     $country = $request->request->get("country");
@@ -140,7 +157,6 @@ class OrderController extends AbstractController
     $input = [
       'first_name' => $first_name,
       'last_name' => $last_name,
-      'email' => $email,
       'company' => $company,
       'shipping_address' => $shipping_address,
       'country' => $country,
@@ -149,7 +165,6 @@ class OrderController extends AbstractController
     $constraints = new Assert\Collection([
       'first_name' => [new Assert\NotBlank],
       'last_name' => [new Assert\NotBlank],
-      'email' => [new Assert\NotBlank],
       'company' => [new Assert\NotBlank],
       'shipping_address' => [new Assert\NotBlank],
       'country' => [new Assert\NotBlank],
@@ -188,20 +203,21 @@ class OrderController extends AbstractController
       return $this->render('pages/order/checkout_fail.html.twig', []);
     }
 
+    $user = $doct->getRepository(User::class)->find($this->session->get('user')->getId());
+    $first_name = $request->request->get('first_name');
+    $user->setFirstName($first_name);
+    $last_name = $request->request->get('last_name');
+    $user->setLastName($last_name);
+    $shipping_address = $request->request->get('shipping_address');
+    $user->setAddress($shipping_address);
+    $country = $request->request->get('country');
+    $user->setCountry($country);
+    $this->session->clear();
+    $this->session->set('user', $user);
     // save order
     $order = new Order();
-    $first_name = $request->request->get('first_name');
-    $order->setFirstName($first_name);
-    $last_name = $request->request->get('last_name');
-    $order->setLastName($last_name);
-    $email = $request->request->get('email');
-    $order->setEmail($email);
     $company = $request->request->get('company');
     $order->setCompany($company);
-    $shipping_address = $request->request->get('shipping_address');
-    $order->setShippingAddress($shipping_address);
-    $country = $request->request->get('country');
-    $order->setCountry($country);
     $zip_code = $request->request->get('zip_code');
     $order->setZipCode($zip_code);
     $comment = $request->request->get('comment');
@@ -209,7 +225,7 @@ class OrderController extends AbstractController
     $date = new DateTime();
     $date->add(new DateInterval('P1D'));
     $order->setDate($date);
-    $order->setUserId(1);
+    $order->setUserId($user->getId());
     $doct->persist($order);
     $doct->flush();
     foreach ($carts as $cart) {
@@ -247,8 +263,8 @@ class OrderController extends AbstractController
    */
   public function admin_index(): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $orders = $this->getDoctrine()->getRepository(Order::class)->findAll();
     foreach ($orders as $order) {
       $order->str_date = $order->getDate()->format('Y-m-d');
@@ -261,6 +277,7 @@ class OrderController extends AbstractController
       }
       $order->total_price = $total_price;
       $order->total_number = $total_number;
+      $order->user = $this->getDoctrine()->getRepository(User::class)->find($order->getUserId());
     }
     return $this->render('pages/admin/order/index.html.twig', [
       'orders' => $orders,
@@ -272,14 +289,15 @@ class OrderController extends AbstractController
    */
   public function admin_detail($id): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $order = $this->getDoctrine()->getRepository(Order::class)->find($id);
     $products = $this->getAllOrderProduct($order->getId());
     $total_price = 0;
     foreach ($products as $product) {
       $total_price = $total_price + $product->getQuantity() * $product->product->getPrice();
     }
+    $order->user = $this->getDoctrine()->getRepository(User::class)->find($order->getUserId());
     return $this->render('pages/admin/order/detail.html.twig', [
       'products' => $products,
       'order' => $order,
@@ -292,8 +310,8 @@ class OrderController extends AbstractController
    */
   public function admin_download($id): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $order = $this->getDoctrine()->getRepository(Order::class)->find($id);
     $products = $this->getAllOrderProduct($order->getId());
     $total_price = 0;
@@ -333,8 +351,8 @@ class OrderController extends AbstractController
    */
   public function admin_create(): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $products = $this->getDoctrine()->getRepository(Product::class)->findAll();
     return $this->render('pages/admin/order/create.html.twig', [
       'products' => $products
@@ -346,8 +364,8 @@ class OrderController extends AbstractController
    */
   public function admin_store(Request $request, ValidatorInterface $validator): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $shipping_address = $request->request->get("shipping_address");
     $quantity = $request->request->get("quantity");
     $input = [
@@ -401,8 +419,8 @@ class OrderController extends AbstractController
    */
   public function admin_edit($id): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $order = $this->getDoctrine()->getRepository(Order::class)->find($id);
     $products = $this->getDoctrine()->getRepository(Product::class)->findAll();
     return $this->render('pages/admin/order/edit.html.twig', [
@@ -416,8 +434,8 @@ class OrderController extends AbstractController
    */
   public function admin_update($id, Request $request, ValidatorInterface $validator): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $shipping_address = $request->request->get("shipping_address");
     $quantity = $request->request->get("quantity");
     $input = [
@@ -474,8 +492,8 @@ class OrderController extends AbstractController
    */
   public function admin_delete($id): Response
   {
-    // if (!$this->isAdmin())
-    //     return $this->redirectToRoute('deconnexion');
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $doct = $this->getDoctrine()->getManager();
     $order = $doct->getRepository(Order::class)->find($id);
     $this->removeOrder($order->getId());
@@ -491,6 +509,8 @@ class OrderController extends AbstractController
    */
   public function admin_search(Request $request): Response
   {
+    if (!$this->isAdmin())
+      return $this->redirectToRoute('login');
     $doct = $this->getDoctrine()->getManager();
     $id = $request->request->get('id');
     $filter = [];

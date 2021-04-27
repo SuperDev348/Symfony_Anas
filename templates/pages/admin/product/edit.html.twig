@@ -137,7 +137,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="update ml-auto mr-auto my-3">
+              <div class="d-flex justify-content-center my-3">
                 <a class="btn btn-default btn-round text-white" href="{{ path('admin_product') }}">Cancel</a>
                 <button type="submit" class="btn btn-primary btn-round">Save</button>
               </div>
@@ -157,7 +157,7 @@
     var fileName = $(this).val().split("\\").pop();
     $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
   });
-  if ($("#type option:selected").text() === 'equipement' || $("#type option:selected").text() === 'accessoires') {
+  if ($("#type option:selected").text() === 'Équipement' || $("#type option:selected").text() === 'Accessoires') {
     $("#size").prop('disabled', 'disabled');
     $("#color").prop('disabled', 'disabled');
   }
@@ -168,7 +168,7 @@
   $(document).ready(function(){
     $("#type").change(function(event){
       console.log(event.target.value);
-      if (event.target.value === 'equipement' || event.target.value === 'accessoires') {
+      if (event.target.value === 'Équipement' || event.target.value === 'Accessoires') {
         $("#size").prop('disabled', 'disabled');
         $("#color").prop('disabled', 'disabled');
       }

@@ -1,0 +1,217 @@
+{% extends 'layout/admin/index.html.twig' %}
+
+{% block title %}
+<title>Event - Admin</title>
+{% endblock %}
+
+{% block subtitle %}
+<a class="navbar-brand" href="javascript:;">Events</a>
+{% endblock %}
+
+{% block body %}
+
+    <div class="content">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+            <h1 style="margin-right: 20px">Liste des Evenements</h1>
+            <a href="{{ path('tri_event') }}">Trier par ordre décroissant</a>
+            <button data-bs-toggle="modal" data-bs-target="#addModal" class="btn btn-outline-success" style="width: 100px"><i class="nc-icon nc-simple-add" style="font-size: 28px"></i></button>
+        </div>
+        <div class="form-group row">
+            <form action="{{ path('search') }}", method="post">
+            <div class="col-md-12">
+                <label class="form__label">Recherche par titre ou description</label>
+                <input type="text"  name="search"  class="form-control">
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </div>
+            </form>
+        </div>
+        <br>
+        {% if form.titre.vars.errors|length %}
+            <div class="col-sm-12 alert alert-danger">{{ form_errors(form.titre) }}</div>
+        {% endif %}
+        <br>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Photo</th>
+                <th scope="col">Titre</th>
+                <th scope="col">Description</th>
+                <th scope="col">Date debut</th>
+                <th scope="col">Date fin</th>
+                <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for event in events %}
+                <tr>
+                    <td> <img style="width: 100px" src="{{ asset('uploads/' ~ event.image) }}"> </td>
+                    <td >{{ event.titre }}</td>
+                    <td>{{ event.description }}</td>
+                    <td>{{ event.dateDebut|date("m-d-Y") }}</td>
+                    <td>{{ event.dateFin|date("m-d-Y") }}</td>
+                    <td><div style="display: flex">
+
+                            <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#updateModal{{ event.id }}" style="margin-right: 10px"><i class="nc-icon nc-settings"></i></button>
+
+                            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ event.id }}"><i class="nc-icon nc-simple-delete"></i></button>
+
+                        </div>
+                    </td>
+                </tr>
+                <!--  Delete Modal -->
+                <div class="modal fade" id="deleteModal{{ event.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <br>
+                                <h5 class="modal-title" id="exampleModalLabel">Voulez vous supprimer le event {{ event.titre }}</h5>
+                                <br>
+                                <div style="text-align: center">
+                                    <a type="button" href="{{ path('delete_event', {'id':event.id}) }}" class="btn btn-danger">Supprimer</a>
+                                    <a type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</a>
+                                </div>
+                                <br>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+               <!--  Update Modal -->
+                <div class="modal fade" id="updateModal{{ event.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <form method="post" action="{{ path('update_event', {'id':event.id}) }}" enctype="multipart/form-data">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Modifier le evenement</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Titre</label>
+                                            <input type="text" maxlength="30" name="title" value="{{ event.titre }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Emplacement</label>
+                                            <input type="text"  name="location" value="{{ event.location }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Description</label>
+                                            <textarea name="description" class="form-control">{{ event.description }}</textarea>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Date debut</label>
+                                            <input type="date" name="DateDebut" value="{{ event.dateDebut|date('Y-m-d') }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Date fin</label>
+                                            <input type="date" name="DateFin" value="{{ event.dateFin|date('Y-m-d') }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="form__label">Photo du couverture</label>
+                                            <input type="file" name="image" class="form-control">
+                                        </div>
+                                    </div>
+                                    <br>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Modifier</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ajouter un nouveau evenement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label class="form__label">Emplacement</label>
+                            {{ form_widget(form.location, {'attr': {'placeholder': 'Emplacement du projet', 'class':'form-control', 'type':'text'}}) }}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label class="form__label">Titre</label>
+                            {{ form_widget(form.titre, {'attr': {'placeholder': 'Titre du projet', 'class':'form-control', 'type':'text'}}) }}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+
+                        <div class="col-md-12">
+                            <label class="form__label">Description</label>
+                            {{ form_widget(form.description, {'attr': {'placeholder': 'Description du projet', 'class':'form-control', 'type':'text'}}) }}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+
+                        <div class="col-md-12">
+                            <label class="form__label">Date debut</label>
+                            {{ form_widget(form.dateDebut, {'attr': {'class':'form-control'}}) }}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label class="form__label">Date fin</label>
+                            {{ form_widget(form.dateFin, {'attr': {'class':'form-control'}}) }}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label class="form__label">Photo du couverture</label>
+                            {{ form_widget(form.image, {'attr': {'class':'form-control'}}) }}
+                        </div>
+                    </div>
+                    <br>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

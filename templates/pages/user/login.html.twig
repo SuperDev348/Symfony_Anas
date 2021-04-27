@@ -1,0 +1,123 @@
+{% extends 'layout/index.html.twig' %}
+
+{% block title %}
+<title>Login</title>
+{% endblock %}
+
+{% block body %}
+<section class="section breadcrumb-section" style="background-image: url(images/image-10-1920x232.jpg)">
+  <div class="container">
+    <h2 class="breadcrumb-section-title">Log in or register</h2>
+    <!-- Breadcrumb-->
+    <div class="breadcrumb">
+      <div class="breadcrumb-inner">
+        <div class="breadcrumb-item"><a class="breadcrumb-link" href="index.html">Home</a></div>
+        <div class="breadcrumb-item"><a class="breadcrumb-link" href="#">Pages</a></div>
+        <div class="breadcrumb-item"><span class="breadcrumb-text breadcrumb-active">Log In</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Login/Register-->
+<section class="section-md bg-transparent">
+  <div class="container">
+    <div class="row row-content">
+      <div class="col-md-6">
+        <div class="box box-form">
+          <div class="box-form-header">
+            <div class="box-form-title h2">Log In</div>
+            <div class="box-form-text">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi.</div>
+          </div>
+          <div class="box-form-body box-form-body-primary">
+            <div class="row row-15 row-gutters-14">
+              <form action="{{ path('signin') }}" method="POST">
+                <div class="col-12">
+                  <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input class="form-control" id="email" type="text" name="email" placeholder="Email">
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-control" id="password" type="password" name="password" placeholder="Password">
+                  </div>
+                </div>
+                <div class="col-12 mt-1">
+                  <div class="d-flex flex-wrap justify-content-between">
+                    <div class="custom-control custom-checkbox mr-2">
+                      <input class="custom-control-input" type="checkbox" id="r4l30md9md" name="login-check" checked>
+                      <label class="custom-control-label" for="r4l30md9md">Remember Me
+                      </label>
+                    </div>
+                    <div><span>Forgot your password? </span><a href="#">Click Here</a></div>
+                  </div>
+                </div>
+                <div class="col-12 mt-xl-2">
+                  <button class="btn btn-block">Sign in</button>
+                </div>
+              </form>
+              <div class="col-xl-6 mt-xl-2">
+                <button class="btn btn-block btn-facebook"><span class="btn-icon mdi-facebook"></span><span>Sing in via facebook</span></button>
+              </div>
+              <div class="col-xl-6 mt-xl-2">
+                <button class="btn btn-block btn-twitter"><span class="btn-icon mdi-twitter"></span><span>Sing in via twitter</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="box box-form box-form-tertiary">
+          <div class="box-form-header">
+            <div class="box-form-title h2">Register Now</div>
+            <div class="box-form-text">Sed ut perspiciatis unde omnis iste natus error sit voluptatem.</div>
+          </div>
+          <div class="box-form-body box-form-body-primary">
+            <div class="row row-15 row-gutters-14">
+              <form action="{{ path('signup') }}" method="POST">
+                <div class="col-12">
+                  <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input class="form-control" id="email" type="email" name="email" placeholder="Email">
+                    {% if (errors is defined) and ('email' in errors|keys) %}
+                    <span style="color: red;">{{ errors.email }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-control" id="password" type="password" name="password" placeholder="Password">
+                    {% if (errors is defined) and ('password' in errors|keys) %}
+                    <span style="color: red;">{{ errors.password }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-group">
+                    <label class="form-label" for="confirm_password">Confirm Password</label>
+                    <input class="form-control" id="confirm_password" type="password" name="confirm_password" placeholder="Confirm Password">
+                    {% if (errors is defined) and ('confirm_password' in errors|keys) %}
+                    <span style="color: red;">{{ errors.confirm_password }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-12 mt-2">
+                  <button class="btn btn-block btn-success">Register</button>
+                </div>
+              </form>
+              <div class="col-xl-6 mt-xl-2">
+                <button class="btn btn-block btn-facebook"><span class="btn-icon mdi-facebook"></span><span>Sing in via facebook</span></button>
+              </div>
+              <div class="col-xl-6 mt-xl-2">
+                <button class="btn btn-block btn-twitter"><span class="btn-icon mdi-twitter"></span><span>Sing in via twitter</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
